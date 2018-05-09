@@ -74,5 +74,5 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [link-scrutinizer]: https://scrutinizer-ci.com/g/rosemlab/router/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/rosemlab/router
 [link-downloads]: https://packagist.org/packages/rosemlab/router
-[link-author]: https://github.com/ma1oy
+[link-author]: https://github.com/roshecode
 [link-contributors]: ../../contributors
