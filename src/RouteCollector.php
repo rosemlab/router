@@ -11,7 +11,7 @@ class RouteCollector
     const ROUTES_CHUNK_LIMIT = 33;
     const REGEX_DELIMITER    = ':';
     const VARIABLE_DELIMITER = ':';
-    const ROUTES_SPLIT_REGEX = '/(?:(?>\\\)\/|[^\/\s])+/i';
+    const ROUTES_SPLIT_REGEX = '(?>\\\)\/|[^\/\s]+';
 
     private $backtrackLimit; // TODO: add mechanism for regex length limiting
 
@@ -55,14 +55,14 @@ class RouteCollector
 //        $route = rtrim($route, '/');
             $count = &$this->count;
             $rest = $count % static::ROUTES_CHUNK_LIMIT;
-            $regex = '(?:' . preg_replace_callback(static::ROUTES_SPLIT_REGEX, function ($matches) {
+            $regex = '(?:' . preg_replace_callback('/' . static::VARIABLE_DELIMITER . static::ROUTES_SPLIT_REGEX . '/u', function ($matches) {
                     $node = &$matches[0];
                     if ($node[0] === static::VARIABLE_DELIMITER) {
-                        $regexp_parts = explode(static::REGEX_DELIMITER, $node, 3);
+                        $regexpParts = explode(static::REGEX_DELIMITER, $node, 3);
 
-                        if (\count($regexp_parts) > 2) {
+                        if (\count($regexpParts) > 2) {
 //                            if (\is_numeric($regexp_parts[1])) {
-                                return "($regexp_parts[2])";
+                                return "($regexpParts[2])";
 //                            }
 
 //                            return "(?<$regexp_parts[1]>$regexp_parts[2])";
