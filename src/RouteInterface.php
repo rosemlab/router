@@ -4,6 +4,6 @@ namespace Rosem\Route;
 
 interface RouteInterface
 {
-    public function getUri(): string;
-    public function getMethod(): string;
+    public function getRegex(): string;
+    public function getAllowedMethods(): array;
 }

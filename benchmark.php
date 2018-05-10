@@ -28,7 +28,7 @@ $nMatches = 30000;
 // MY ROUTER ===========================================================================================================
 $truerouter = new Rosem\Route\RouteCollector();
 for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
-    $truerouter->addRoute('GET', '/' . $str . '/:arg', 'handler' . $i);
+    $truerouter->addRoute('GET', '/' . $str . '/{arg}', 'handler' . $i);
     $lastStr = $str;
 }
 // first route ---------------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ $stats[FAST_ROUTER_1][UNKNOWN] = microtime(true) - $startTime;
 $nRoutes = 300;
 $nArgs = 9;
 $nMatches = 30000;
-$args = implode('/', array_map(function($i) { return ":arg$i"; }, range(1, $nArgs)));
+$args = implode('/', array_map(function($i) { return "{arg$i}"; }, range(1, $nArgs)));
 // MY ROUTER ===========================================================================================================
 $truerouter = new \Rosem\Route\RouteCollector();
 for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
