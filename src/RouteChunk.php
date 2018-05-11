@@ -2,53 +2,111 @@
 
 namespace Rosem\Route;
 
-class RouteChunk
+class RouteChunk implements \ArrayAccess, \Countable
 {
-    protected $regex;
-    protected $routes = [];
+    public $regex;
+    protected $routes      = [];
     protected $routesLimit = 0;
-    protected $regexLength = 0;
-    protected $regexLimit = 0;
-    protected $matches = [];
+    protected $regexLength;
+    protected $regexLimit  = 0;
+    protected $matches     = [];
 
     protected static $suffix = '/0123456789';
 
-    public function __construct(int $routesLimit = 66, ?int $regexLimit = null)
+    public function __construct(int $routesLimit = 99, ?int $regexLimit = null)
     {
         $this->routesLimit = $routesLimit;
-        $this->regexLimit = $regexLimit ?: ini_get('pcre.backtrack_limit') ?: 1000000;
+        $this->regexLimit = $regexLimit ?: (int) ini_get('pcre.backtrack_limit') ?: 1000000;
     }
 
-    public function hasPlaceForRoute(int $routeLength): bool
+    protected function getIndexRegex(int $index): string
     {
-        return ($this->routesLimit === INF || \count($this->routes) < $this->routesLimit) &&
-            ($this->regexLength + $routeLength) <= $this->regexLimit;
+        $regex = '';
+
+        if ($index < 10) {
+            if ($index) {
+                $regex = '.*';
+            }
+
+            return $regex . $index;
+        }
+
+        $indexLength = (int) floor(log10($index) + 1);
+        $indexString = (string) $index;
+
+        do {
+            $regex = '.*' . $indexString[--$indexLength] . $regex;
+        } while ($indexLength);
+
+        return $regex;
     }
 
-    public function addRoute(RouteInterface $route): void
+    public function addRoute(RouteInterface $route): bool
     {
-        $rest = \count($this->routes);
-        $regex = '(?:' . $route->getRegex() . ')/(' . ($rest ? '.*' : '') .
-            ($rest < 10 ? $rest : (intdiv($rest, 10) . '.*' . $rest % 10))
-            . ')';
-        $this->regex = $rest ? "$regex|$this->regex" : $regex;
-        $this->routes[] = $route;
+        $index = \count($this->routes);
+        $regex = '(?:' . $route->getRegex() . ')/(' . $this->getIndexRegex($index) . ')';
+
+        if (($this->routesLimit === INF || \count($this->routes) < $this->routesLimit) &&
+            ($this->regexLength + \strlen($regex)) < $this->regexLimit
+        ) {
+            if ($index) {
+                $this->regex = "$regex|$this->regex";
+                $this->regexLength += \strlen($regex) + 1;
+            } else {
+                $this->regex = $regex;
+                $this->regexLength = \strlen($regex);
+            }
+
+            $this->routes[] = $route;
+
+            return true;
+        }
+
+        return false;
     }
 
-    public function matchRoute(string $uri): bool
+    public function getRegex(): string
     {
-        return preg_match("~^(?|{$this->regex})\d*$~", $uri . static::$suffix, $this->matches);
+        return $this->regex;
     }
 
-    public function getMatchedRoute(): array
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
     {
-        $indexStr = array_pop($this->matches);
-//        $indexStr = end($this->matches);
-        array_shift($this->matches);
+        return isset($this->routes[$offset]);
+    }
 
-        return [
-            $this->routes[(int) ($indexStr[0] . $indexStr[-1])],
-            &$this->matches,
-        ];
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->routes[$offset] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        null === $offset ? $this->routes[] = $value : $this->routes[$offset] = $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->routes[$offset]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return \count($this->routes);
     }
 }

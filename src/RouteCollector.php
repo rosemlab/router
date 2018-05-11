@@ -6,34 +6,13 @@ use Psrnext\Http\Message\RequestMethod;
 
 class RouteCollector
 {
-    protected const ROUTE_REGEX = 0;
-
-    const ROUTES_CHUNK_LIMIT = 33;
-    const REGEX_DELIMITER    = ':';
-    const VARIABLE_DELIMITER = ':';
-    const ROUTES_SPLIT_REGEX = '(?>\\\)\/|[^\/\s]+';
-
-    private $backtrackLimit; // TODO: add mechanism for regex length limiting
-
-    /**
-     * @var RouteChunk[][]
-     */
-    protected $routes = [];
-
-    protected $count = 0;
-
-    private $suffix;
-
-    protected $prefix = '';
-
     protected $routeParser;
+    protected $routeDispatcher;
 
     public function __construct()
     {
-        $this->backtrackLimit = ini_get('pcre.backtrack_limit');
-//        $this->tail = '/' . str_repeat(' ', self::ROUTES_CHUNK_LIMIT);
-        $this->suffix = '/0123456789';//876543210';
         $this->routeParser = new RouteParser();
+        $this->routeDispatcher = new RouteDispatcher();
     }
 
     public static function normalize(string $route): string
@@ -54,46 +33,22 @@ class RouteCollector
      */
     public function addRoute($methods, string $route, $handler)
     {
-        $route = $this->routeParser->parse($route);
-
         foreach ((array) $methods as $method) {
+            $route = new Route($method, $this->routeParser->parse($route));
+
             if (!isset($this->routes[$method])) {
                 $this->routes[$method] = [new RouteChunk()];
             }
 
             $lastChunk = end($this->routes[$method]);
 
-            if (!$lastChunk->hasPlaceForRoute(\strlen($route->getRegex()))) {
+            if (!$lastChunk->addRoute($route)) {
                 $this->routes[$method][] = $lastChunk = new RouteChunk();
+
+                if (!$lastChunk->addRoute($route)) {
+                    throw new \Exception('Your route is too long');
+                }
             }
-
-            $lastChunk->addRoute($route);
-
-////        $route = rtrim($route, '/');
-//            $count = &$this->count;
-//            $rest = $count % static::ROUTES_CHUNK_LIMIT;
-//            $regex = '(?:' . preg_replace_callback('/' . static::VARIABLE_DELIMITER . static::ROUTES_SPLIT_REGEX . '/u', function ($matches) {
-//                    $node = &$matches[0];
-//                    if ($node[0] === static::VARIABLE_DELIMITER) {
-//                        $regexpParts = explode(static::REGEX_DELIMITER, $node, 3);
-//
-//                        if (\count($regexpParts) > 2) {
-////                            if (\is_numeric($regexp_parts[1])) {
-//                            return "($regexpParts[2])";
-////                            }
-//
-////                            return "(?<$regexp_parts[1]>$regexp_parts[2])";
-//                        }
-//
-//                        return '([^/]+)';
-//                    }
-//
-//                    return $node;
-//                }, $route) . ')/(.*' . ($rest < 10 ? $rest : intdiv($rest, 10) . '.*' . $rest % 10) . ')';
-//            $route = &$this->routes[(++$count - $rest) / static::ROUTES_CHUNK_LIMIT];
-////            ? $route[0] .= "|$regex"
-//            $rest ? $route[0] = "$regex|$route[0]" : $route = [$regex, $method => []];
-//            $route[$method][$rest] = $handler;
         }
     }
 
@@ -118,46 +73,7 @@ class RouteCollector
      */
     public function make($method, string $uri): array
     {
-        foreach ($this->routes[$method] as $routeChunk) {
-            if (!$routeChunk->matchRoute($uri)) {
-                continue;
-            }
-
-            return $routeChunk->getMatchedRoute();
-        }
-
-        return [function ($errorCode) {
-            return "$errorCode Not found";
-        }, [404]];
-
-////        $uri = rtrim($uri, '/');
-//        $matches = [];
-////        for ($i = count($this->routes) - 1; $i >= 0, $route = &$this->routes[$i]; --$i) {
-//        foreach ($this->routes as &$route) {
-//            if (preg_match("~^(?|{$route[self::ROUTE_REGEX]})\d*$~", "$uri$this->suffix", $matches)) {
-////                array_shift($matches);
-//
-////                return [$route[1][strlen(array_pop($matches))], &$matches];
-//                $indexStr = array_pop($matches);
-//                array_shift($matches);
-//
-////                unset($matches[0]);
-//
-//                return [
-//                    $route[$method][(int)($indexStr[0] . $indexStr[-1])],
-//                    &$matches,
-//                ];
-//            }
-//        }
-////        foreach ($this->routes as &$route) {
-////            if (preg_match("~^(?|{$route[0]})~", "$uri$this->tail", $matches)) {
-////                array_shift($matches);
-////                return [$route[1][strlen(array_pop($matches))], &$matches];
-////            }
-////        }
-//        return [function ($errorCode) {
-//            return "$errorCode Not found";
-//        }, [404]];
+        return $this->routeDispatcher->dispatch($this->routes[$method], $uri);
     }
 
     /**

@@ -17,9 +17,9 @@ class RouteParser
     /**
      * @param string $route
      *
-     * @return RouteInterface
+     * @return string
      */
-    public function parse(string $route): RouteInterface
+    public function parse(string $route): string
     {
         $regex = preg_replace_callback(self::ROUTE_SEGMENTS_REGEX, function ($matches) {
             if ($matches[2]) {
@@ -29,6 +29,6 @@ class RouteParser
             return '([^/]+)';
         }, $route);
 
-        return new Route(['GET'], $regex);
+        return $regex;
     }
 }

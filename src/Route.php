@@ -5,11 +5,11 @@ namespace Rosem\Route;
 class Route implements RouteInterface
 {
     protected $regex;
-    protected $allowedMethods;
+    protected $method;
 
-    public function __construct(array $allowedMethods, string $regex)
+    public function __construct(string $method, string $regex)
     {
-        $this->allowedMethods = $allowedMethods;
+        $this->method = $method;
         $this->regex = $regex;
     }
 
@@ -18,8 +18,8 @@ class Route implements RouteInterface
         return $this->regex;
     }
 
-    public function getAllowedMethods(): array
+    public function getMethod(): string
     {
-        return $this->allowedMethods;
+        return $this->method;
     }
 }
