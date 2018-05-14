@@ -16,12 +16,12 @@ class RouteDispatcher
         $uri .= $this->suffix;
 
         foreach ($routeChunkCollection as $routeChunk) {
-            if (!preg_match('~^(?|' . $routeChunk->regex . ')\d*$~', $uri, $matches)) {
+            if (!preg_match($routeChunk->getRegex(), $uri, $matches)) {
                 continue;
             }
 
             $indexStr = array_pop($matches);
-//        $indexStr = end($this->matches);
+//        $indexStr = end($matches);
             array_shift($matches);
 
             return [

@@ -2,16 +2,16 @@
 
 namespace Rosem\Route;
 
+use function count;
+use function strlen;
+
 class RouteChunk implements \ArrayAccess, \Countable
 {
-    public $regex;
+    protected $regex       = '';
     protected $routes      = [];
     protected $routesLimit = 0;
-    protected $regexLength;
+    protected $regexLength = 0;
     protected $regexLimit  = 0;
-    protected $matches     = [];
-
-    protected static $suffix = '/0123456789';
 
     public function __construct(int $routesLimit = 99, ?int $regexLimit = null)
     {
@@ -43,18 +43,18 @@ class RouteChunk implements \ArrayAccess, \Countable
 
     public function addRoute(RouteInterface $route): bool
     {
-        $index = \count($this->routes);
+        $index = count($this->routes);
         $regex = '(?:' . $route->getRegex() . ')/(' . $this->getIndexRegex($index) . ')';
 
-        if (($this->routesLimit === INF || \count($this->routes) < $this->routesLimit) &&
-            ($this->regexLength + \strlen($regex)) < $this->regexLimit
+        if (($this->routesLimit === INF || $index < $this->routesLimit) &&
+            ($this->regexLength + strlen($regex)) < $this->regexLimit
         ) {
             if ($index) {
-                $this->regex = "$regex|$this->regex";
-                $this->regexLength += \strlen($regex) + 1;
+                $this->regex .= "|$regex";
+                $this->regexLength += strlen($regex) + 10 /* 1 char for | and 9 for wrap in getRegex method */;
             } else {
                 $this->regex = $regex;
-                $this->regexLength = \strlen($regex);
+                $this->regexLength = strlen($regex);
             }
 
             $this->routes[] = $route;
@@ -67,7 +67,7 @@ class RouteChunk implements \ArrayAccess, \Countable
 
     public function getRegex(): string
     {
-        return $this->regex;
+        return '~^(?|' . $this->regex . ')\d*$~';
     }
 
     /**
@@ -107,6 +107,6 @@ class RouteChunk implements \ArrayAccess, \Countable
      */
     public function count()
     {
-        return \count($this->routes);
+        return count($this->routes);
     }
 }
