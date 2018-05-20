@@ -2,17 +2,28 @@
 
 namespace Rosem\Route;
 
+use InvalidArgumentException;
 use Psrnext\Http\Message\RequestMethod;
+use Rosem\Route\Chunk\NumberBasedChunk;
+use Rosem\Route\Dispatcher\NumberBasedDispatcher;
 
 class RouteCollector
 {
     protected $routeParser;
+
     protected $routeDispatcher;
+
+    /**
+     * @var NumberBasedChunk[][]
+     */
+    protected $routes = [];
+
+    protected $prefix = '';
 
     public function __construct()
     {
         $this->routeParser = new RouteParser();
-        $this->routeDispatcher = new RouteDispatcher();
+        $this->routeDispatcher = new NumberBasedDispatcher();
     }
 
     public static function normalize(string $route): string
@@ -27,26 +38,30 @@ class RouteCollector
     }
 
     /**
-     * @param string|array $methods
-     * @param string       $route
-     * @param              $handler
+     * @param string|string[]          $methods
+     * @param string                   $route
+     * @param string|string[]|callable $handler
+     *
+     * @throws \Exception
      */
     public function addRoute($methods, string $route, $handler)
     {
-        foreach ((array) $methods as $method) {
-            $route = new Route($method, $this->routeParser->parse($route));
+        foreach ((array)$methods as $method) {
+            $routeInstance = new Route($method, $this->routeParser->parse($route));
 
             if (!isset($this->routes[$method])) {
-                $this->routes[$method] = [new RouteChunk()];
+                $this->routes[$method] = [new NumberBasedChunk()];
             }
 
+            /** @var ChunkInterface $lastChunk */
             $lastChunk = end($this->routes[$method]);
 
-            if (!$lastChunk->addRoute($route)) {
-                $this->routes[$method][] = $lastChunk = new RouteChunk();
+            if (!$lastChunk->addRoute($routeInstance)) {
+                $this->routes[$method][] = $lastChunk = new NumberBasedChunk();
 
-                if (!$lastChunk->addRoute($route)) {
-                    throw new \Exception('Your route is too long');
+                /** @noinspection NotOptimalIfConditionsInspection */
+                if (!$lastChunk->addRoute($routeInstance)) {
+                    throw new InvalidArgumentException('Your route is too long');
                 }
             }
         }

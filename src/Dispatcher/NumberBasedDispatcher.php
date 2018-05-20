@@ -1,14 +1,18 @@
 <?php
 
-namespace Rosem\Route;
+namespace Rosem\Route\Dispatcher;
 
-class RouteDispatcher
+class NumberBasedDispatcher
 {
     protected $suffix = '/';
 
     public function __construct(int $routesMaxLimit = 99)
     {
-        $this->suffix .= '0123456789876543210'; //TODO: auto-generate
+        $this->suffix .= str_pad(
+            '',
+            10 * (int)floor(log10($routesMaxLimit) + 1), // get count of numbers
+            '0123456789'
+        );
     }
 
     public function dispatch(array $routeChunkCollection, string $uri): array
@@ -25,13 +29,16 @@ class RouteDispatcher
             array_shift($matches);
 
             return [
-                $routeChunk[(int) ($indexStr[0] . $indexStr[-1])],
+                $routeChunk[(int)($indexStr[0] . $indexStr[-1])],
                 &$matches,
             ];
         }
 
-        return [function ($errorCode) {
-            return "$errorCode Not found";
-        }, [404]];
+        return [
+            function ($errorCode) {
+                return "$errorCode Not found";
+            },
+            [404],
+        ];
     }
 }
