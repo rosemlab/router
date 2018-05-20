@@ -4,43 +4,23 @@ namespace Rosem\Route\Chunk;
 
 use function count;
 use Rosem\Route\RouteInterface;
-use function strlen;
 
 class NumberBasedChunk extends RegexBasedAbstractChunk
 {
+    protected const REGEX_ADDITIONAL_LENGTH = 11;
+
     /**
      * NumberBasedChunk constructor.
      *
-     * @param int      $routesLimit
+     * @param array    $result
+     * @param float    $routesLimit
      * @param int|null $regexLimit
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(int $routesLimit = 99, ?int $regexLimit = null)
+    public function __construct(array &$result, float $routesLimit = INF, ?int $regexLimit = null)
     {
-        parent::__construct($routesLimit, $regexLimit);
-    }
-
-    protected function getIndexRegex(int $index): string
-    {
-        $regex = '';
-
-        if ($index < 10) {
-            if ($index) {
-                $regex = '.*';
-            }
-
-            return $regex . $index;
-        }
-
-        $indexLength = (int)floor(log10($index) + 1);
-        $indexString = (string)$index;
-
-        do {
-            $regex = '.*' . $indexString[--$indexLength] . $regex;
-        } while ($indexLength);
-
-        return $regex;
+        parent::__construct($result, $routesLimit, $regexLimit);
     }
 
     /**
@@ -53,29 +33,31 @@ class NumberBasedChunk extends RegexBasedAbstractChunk
     {
         $index = count($this->routes);
 
-        if ($this->beyondRoutesLimit($index)) {
+        if ($this->routesLimit !== INF && $index >= $this->routesLimit) {
             return false;
         }
 
-        $regex = '(?:' . $route->getRegex() . ')/(' . $this->getIndexRegex($index) . ')';
-        $this->verifyRegexLimit($regex);
+        $regex = '';
 
-        if ($index) {
-            $this->regex .= '|' . $regex;
-            // Why 10? 1 char of symbol `|` and 9 chars of wrap in `getRegex` method
-            $this->regexLength += strlen($regex) + 10;
+        if ($index < 10) {
+            if ($index) {
+                $regex = '.*';
+            }
+
+            $regex .= $index;
         } else {
-            $this->regex = $regex;
-            $this->regexLength = strlen($regex);
+            $indexLength = (int)floor(log10($index) + 1);
+            $indexString = (string)$index;
+
+            do {
+                $regex = '.*' . $indexString[--$indexLength] . $regex;
+            } while ($indexLength);
         }
 
-        $this->routes[] = $route;
+        $this->addRegex($index, $route->getRegex() . '/(' . $regex  . ')');
+        $this->finalRegex = '~^(?|' . $this->regex . ')\d*$~';
+        $this->routes[] = [$route->getHandler(), $route->getVariableNames()];
 
         return true;
-    }
-
-    public function getRegex(): string
-    {
-        return '~^(?|' . $this->regex . ')\d*$~';
     }
 }

@@ -4,32 +4,38 @@ namespace Rosem\Route;
 
 class RouteParser
 {
-    private const ROUTE_VARIABLE_TOKENS = ['{', '}'];
+    protected const VARIABLE_TOKENS = ['{', '}'];
 
-    private const ROUTE_VARIABLE_REGEX_TOKEN = ':';
+    protected const VARIABLE_REGEX_TOKEN = ':';
 
-    /*    private const ROUTE_SEGMENTS_REGEX = '/(?>\\\)\/|' . self::ROUTE_VARIABLE_TOKENS[0] . '[^\/\s]+/u';*/
+    private const SEGMENT_REGEX = '/'
+    . self::VARIABLE_TOKENS[0]
+    . '\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*' . self::VARIABLE_REGEX_TOKEN . '?((?:(?<=\\\)\\/|[^\\/])*)'
+    . self::VARIABLE_TOKENS[1]
+    . '/u';
 
-    private const ROUTE_SEGMENTS_REGEX = '/'
-    . self::ROUTE_VARIABLE_TOKENS[0]
-    . '\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*' . self::ROUTE_VARIABLE_REGEX_TOKEN . '?((?:(?<=\\\)\\/|[^\\/])*)'
-    . self::ROUTE_VARIABLE_TOKENS[1] . '/u';
+    private const DEFAULT_DISPATCH_REGEX = '[^/]+';
 
     /**
      * @param string $route
      *
-     * @return string
+     * @return array[]
      */
-    public function parse(string $route): string
+    public function parse(string $route): array
     {
-        $regex = preg_replace_callback(self::ROUTE_SEGMENTS_REGEX, function ($matches) {
+        $variableNames = [];
+        $index = 0;
+        $regex = preg_replace_callback(self::SEGMENT_REGEX, function ($matches) use (&$variableNames, &$index) {
+            $variableNames[] = $matches[1] ?: $index;
+            ++$index;
+
             if ($matches[2]) {
-                return "($matches[2])";
+                return '(' . $matches[2] . ')';
             }
 
-            return '([^/]+)';
+            return '(' . self::DEFAULT_DISPATCH_REGEX . ')';
         }, $route);
 
-        return $regex;
+        return [[$regex, $variableNames]];
     }
 }

@@ -5,20 +5,10 @@ namespace Rosem\Route\Dispatcher;
 use Psrnext\Http\Message\ResponseStatus;
 use Rosem\Route\ChunkInterface;
 use Rosem\Route\DispatcherInterface;
+use function count;
 
-class NumberBasedDispatcher implements DispatcherInterface
+class GroupCountBasedDispatcher implements DispatcherInterface
 {
-    protected $suffix = '/';
-
-    public function __construct(int $routesLimit = 99)
-    {
-        $this->suffix .= str_pad(
-            '',
-            10 * (int)floor(log10($routesLimit) + 1), // get count of numbers
-            '0123456789'
-        );
-    }
-
     /**
      * @param ChunkInterface[] $chunkCollection
      * @param string           $uri
@@ -27,18 +17,21 @@ class NumberBasedDispatcher implements DispatcherInterface
      */
     public function dispatch(array $chunkCollection, string $uri): array
     {
-        $uri .= $this->suffix;
-
         foreach ($chunkCollection as $routeChunk) {
             if (!preg_match($routeChunk[ChunkInterface::REGEX], $uri, $matches)) {
                 continue;
             }
 
-            unset($matches[key($matches)]);
-            $indexStr = array_pop($matches);
-            [$handler, $variableNames] = $routeChunk[ChunkInterface::ROUTES][(int)($indexStr[0] . $indexStr[-1])];
+            [$handler, $variableNames] = $routeChunk[ChunkInterface::ROUTES][count($matches)];
+            $variableData = [];
+            $i = 0;
 
-            return [ResponseStatus::FOUND, $handler, array_combine($variableNames, $matches)];
+            /** @var string[] $variableNames */
+            foreach ($variableNames as $variableName) {
+                $variableData[$variableName] = $matches[++$i];
+            }
+
+            return [ResponseStatus::OK, $handler, $variableData];
         }
 
         return [ResponseStatus::NOT_FOUND, ResponseStatus::PHRASES[ResponseStatus::NOT_FOUND]];

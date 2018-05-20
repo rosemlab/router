@@ -4,8 +4,11 @@ namespace Rosem\Route;
 
 use InvalidArgumentException;
 use Psrnext\Http\Message\RequestMethod;
+use Rosem\Route\Chunk\GroupCountBasedChunk;
 use Rosem\Route\Chunk\NumberBasedChunk;
+use Rosem\Route\Dispatcher\GroupCountBasedDispatcher;
 use Rosem\Route\Dispatcher\NumberBasedDispatcher;
+use function count;
 
 class RouteCollector
 {
@@ -13,16 +16,16 @@ class RouteCollector
 
     protected $routeDispatcher;
 
-    /**
-     * @var NumberBasedChunk[][]
-     */
     protected $routes = [];
 
     protected $prefix = '';
 
+    protected $lastChunk;
+
     public function __construct()
     {
         $this->routeParser = new RouteParser();
+//        $this->routeDispatcher = new GroupCountBasedDispatcher();
         $this->routeDispatcher = new NumberBasedDispatcher();
     }
 
@@ -44,24 +47,28 @@ class RouteCollector
      *
      * @throws \Exception
      */
-    public function addRoute($methods, string $route, $handler)
+    public function addRoute($methods, string $route, $handler): void
     {
         foreach ((array)$methods as $method) {
-            $routeInstance = new Route($method, $this->routeParser->parse($route));
+            foreach ($this->routeParser->parse($route) as $routeData) {
+                $routeInstance = new Route($method, $handler, ...$routeData);
 
-            if (!isset($this->routes[$method])) {
-                $this->routes[$method] = [new NumberBasedChunk()];
-            }
+                if (!isset($this->routes[$method])) {
+                    $this->routes[$method] = [[]];
+//                    $this->lastChunk = new GroupCountBasedChunk($this->routes[$method][0]);
+                    $this->lastChunk = new NumberBasedChunk($this->routes[$method][0]);
+                }
 
-            /** @var ChunkInterface $lastChunk */
-            $lastChunk = end($this->routes[$method]);
-
-            if (!$lastChunk->addRoute($routeInstance)) {
-                $this->routes[$method][] = $lastChunk = new NumberBasedChunk();
-
-                /** @noinspection NotOptimalIfConditionsInspection */
-                if (!$lastChunk->addRoute($routeInstance)) {
-                    throw new InvalidArgumentException('Your route is too long');
+                if (count($routeInstance->getVariableNames())) { // Dynamic route
+                    if (!$this->lastChunk->addRoute($routeInstance)) {
+                        $lastChunk = [];
+                        $this->routes[$method][] = &$lastChunk;
+//                        $this->lastChunk = new GroupCountBasedChunk($lastChunk);
+                        $this->lastChunk = new NumberBasedChunk($lastChunk);
+                        $this->lastChunk->addRoute($routeInstance);
+                    }
+                } else { // Static route
+                    // TODO: static route handling
                 }
             }
         }

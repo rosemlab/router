@@ -4,7 +4,9 @@ namespace Rosem\Route;
 
 interface ChunkInterface
 {
-    public function addRoute(RouteInterface $route): bool;
+    public const REGEX = 0;
 
-    public function getRegex(): string;
+    public const ROUTES = 1;
+
+    public function addRoute(RouteInterface $route): bool;
 }
