@@ -83,6 +83,9 @@ $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/foobar/bar');
 }
+if ($res[0] !== 404) {
+    throw new Exception('Invalid response');
+}
 $stats[ROSEM_ROUTER][UNKNOWN] = microtime(true) - $startTime;
 // ---------------------------------------------------------------------------------------------------------------------
 

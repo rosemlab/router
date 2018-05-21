@@ -5,18 +5,15 @@ namespace Rosem\Route\Dispatcher;
 use Psrnext\Http\Message\ResponseStatus;
 use Rosem\Route\Chunk\NumberBasedChunk;
 use Rosem\Route\DispatcherInterface;
+use function strlen;
 
 class NumberBasedDispatcher implements DispatcherInterface
 {
     protected $suffix = '/';
 
-    public function __construct(int $routeMaxCount = 999)
+    public function __construct(int $routeMaxCount = 99)
     {
-        $this->suffix .= str_pad(
-            '',
-            10 * (int)floor(log10($routeMaxCount) + 1), // get count of numbers
-            '0123456789'
-        ) . '/';
+        $this->suffix .= str_pad('', 10 * strlen((string)$routeMaxCount), '0123456789') . '/';
     }
 
     /**
@@ -36,7 +33,8 @@ class NumberBasedDispatcher implements DispatcherInterface
 
             unset($matches[key($matches)]);
             $indexStr = array_pop($matches);
-            [$handler, $variableNames] = $routeChunk[NumberBasedChunk::ROUTES][(int)($indexStr[0] . $indexStr[-1])];
+            [$handler, $variableNames] =
+                $routeChunk[NumberBasedChunk::ROUTES][(int)($indexStr[0] . (isset($indexStr[1]) ? $indexStr[-1] : ''))];
 
             return [ResponseStatus::FOUND, $handler, array_combine($variableNames, $matches)];
         }
