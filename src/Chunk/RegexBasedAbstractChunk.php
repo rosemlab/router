@@ -16,9 +16,9 @@ abstract class RegexBasedAbstractChunk implements ChunkInterface
 
     protected $finalRegex = '';
 
-    protected $routesLimit;
+    protected $routeMaxCount;
 
-    protected $regexLimit;
+    protected $regexMaxLength;
 
     protected $regexLength = 0;
 
@@ -26,14 +26,14 @@ abstract class RegexBasedAbstractChunk implements ChunkInterface
      * NumberBasedChunk constructor.
      *
      * @param array    $result
-     * @param float    $routesLimit
-     * @param int|null $regexLimit
+     * @param float    $routeMaxCount
+     * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(array &$result, float $routesLimit, ?int $regexLimit = null)
+    public function __construct(array &$result, float $routeMaxCount, ?int $regexMaxLength = null)
     {
-        if ($routesLimit <= 0) {
+        if ($routeMaxCount <= 0) {
             throw new InvalidArgumentException('Limit of routes should be a positive integer number');
         }
 
@@ -41,8 +41,8 @@ abstract class RegexBasedAbstractChunk implements ChunkInterface
             ChunkInterface::REGEX => &$this->finalRegex,
             ChunkInterface::ROUTES => &$this->routes,
         ];
-        $this->routesLimit = $routesLimit;
-        $this->regexLimit = $regexLimit ?: (int)ini_get('pcre.backtrack_limit') ?: 1000000;
+        $this->routeMaxCount = $routeMaxCount;
+        $this->regexMaxLength = $regexMaxLength ?: (int)ini_get('pcre.backtrack_limit') ?: 1000000;
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class RegexBasedAbstractChunk implements ChunkInterface
         $regexLength = strlen($regex);
         $regexFinalLength = $regexLength + static::REGEX_ADDITIONAL_LENGTH;
 
-        if ($this->regexLength + $regexFinalLength + /* 1 char of symbol `|` */ (bool)$index > $this->regexLimit) {
+        if ($this->regexLength + $regexFinalLength + /* 1 char of symbol `|` */ (bool)$index > $this->regexMaxLength) {
             throw new InvalidArgumentException('Your route is too long');
         }
 

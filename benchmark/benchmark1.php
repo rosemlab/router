@@ -57,18 +57,27 @@ for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/a/foo');
 }
 $stats[ROSEM_ROUTER][FIRST] = microtime(true) - $startTime;
+if ($res[1] !== 'handler0') {
+    throw new Exception('Invalid handler');
+}
 // middle route --------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/es/foo');
 }
 $stats[ROSEM_ROUTER][MIDDLE] = microtime(true) - $startTime;
+if ($res[1] !== 'handler148') {
+    throw new Exception('Invalid handler');
+}
 // last route ----------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/' . $lastStr . '/foo');
 }
 $stats[ROSEM_ROUTER][LAST] = microtime(true) - $startTime;
+if ($res[1] !== 'handler299') {
+    throw new Exception('Invalid handler');
+}
 // unknown route -------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {

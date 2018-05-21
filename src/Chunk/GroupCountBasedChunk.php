@@ -13,14 +13,14 @@ class GroupCountBasedChunk extends RegexBasedAbstractChunk
      * GroupCountBasedChunk constructor.
      *
      * @param array    $result
-     * @param float    $routesLimit
-     * @param int|null $regexLimit
+     * @param float    $routeMaxCount
+     * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(array &$result, float $routesLimit = 10, ?int $regexLimit = null)
+    public function __construct(array &$result, float $routeMaxCount = 10, ?int $regexMaxLength = null)
     {
-        parent::__construct($result, $routesLimit, $regexLimit);
+        parent::__construct($result, $routeMaxCount, $regexMaxLength);
     }
 
     /**
@@ -33,7 +33,7 @@ class GroupCountBasedChunk extends RegexBasedAbstractChunk
     {
         $index = count($this->routes);
 
-        if ($this->routesLimit !== INF && $index >= $this->routesLimit) {
+        if ($this->routeMaxCount !== INF && $index >= $this->routeMaxCount) {
             return false;
         }
 
