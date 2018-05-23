@@ -38,8 +38,8 @@ abstract class RegexBasedAbstractChunk implements ChunkInterface
         }
 
         $result = [
-            ChunkInterface::REGEX => &$this->finalRegex,
-            ChunkInterface::ROUTES => &$this->routes,
+            ChunkInterface::KEY_REGEX => &$this->finalRegex,
+            ChunkInterface::KEY_ROUTES => &$this->routes,
         ];
         $this->routeMaxCount = $routeMaxCount;
         $this->regexMaxLength = $regexMaxLength ?: (int)ini_get('pcre.backtrack_limit') ?: 1000000;

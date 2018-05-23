@@ -123,12 +123,12 @@ $stats[FAST_ROUTER][UNKNOWN] = microtime(true) - $startTime;
 // ---------------------------------------------------------------------------------------------------------------------
 
 // SYMFONY ROUTER ======================================================================================================
-$router = new \Symfony\Component\Routing\RouteCollection();
+$routes = new \Symfony\Component\Routing\RouteCollection();
 for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
-    $router->add('handler' . $i, new \Symfony\Component\Routing\Route('/' . $str . '/{arg}'));
+    $routes->add('handler' . $i, new \Symfony\Component\Routing\Route('/' . $str . '/{arg}'));
     $lastStr = $str;
 }
-$dumper = new \Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper($router);
+$dumper = new \Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper($routes);
 eval('?'.'>'.$dumper->dump());
 $router = new \ProjectUrlMatcher(new \Symfony\Component\Routing\RequestContext());
 // first route ---------------------------------------------------------------------------------------------------------

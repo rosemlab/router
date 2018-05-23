@@ -8,11 +8,13 @@ class RouteParser
 
     protected const VARIABLE_REGEX_TOKEN = ':';
 
+    // {\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*:?([^\/]*?[^{]*)}
     private const SEGMENT_REGEX = '/'
     . self::VARIABLE_TOKENS[0]
-    . '\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*' . self::VARIABLE_REGEX_TOKEN . '?((?:(?<=\\\)\\/|[^\\/])*)'
+    . '\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*' . self::VARIABLE_REGEX_TOKEN
+    . '?([^\\/]*?[^' . self::VARIABLE_TOKENS[0] . ']*)'
     . self::VARIABLE_TOKENS[1]
-    . '/u';
+    . '/';
 
     private const DEFAULT_DISPATCH_REGEX = '[^/]+';
 

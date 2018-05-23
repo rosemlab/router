@@ -10,19 +10,19 @@ use function count;
 class GroupCountBasedDispatcher implements DispatcherInterface
 {
     /**
-     * @param ChunkInterface[] $chunkCollection
-     * @param string           $uri
+     * @param array[] $chunkCollection
+     * @param string  $uri
      *
      * @return array
      */
     public function dispatch(array $chunkCollection, string $uri): array
     {
         foreach ($chunkCollection as $routeChunk) {
-            if (!preg_match($routeChunk[ChunkInterface::REGEX], $uri, $matches)) {
+            if (!preg_match($routeChunk[ChunkInterface::KEY_REGEX], $uri, $matches)) {
                 continue;
             }
 
-            [$handler, $variableNames] = $routeChunk[ChunkInterface::ROUTES][count($matches)];
+            [$handler, $variableNames] = $routeChunk[ChunkInterface::KEY_ROUTES][count($matches)];
             $variableData = [];
             $i = 0;
 

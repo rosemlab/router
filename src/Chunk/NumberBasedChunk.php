@@ -8,9 +8,13 @@ use function strlen;
 
 class NumberBasedChunk extends RegexBasedAbstractChunk
 {
+    public const KEY_SUFFIX = 2;
+
     protected const REGEX_ADDITIONAL_LENGTH = 11;
 
     protected $routeMaxCountLength;
+
+    protected $regexSegmentsCount;
 
     /**
      * NumberBasedChunk constructor.
@@ -21,11 +25,14 @@ class NumberBasedChunk extends RegexBasedAbstractChunk
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(array &$result, float $routeMaxCount = 99, ?int $regexMaxLength = null)
+    public function __construct(array &$result, float $routeMaxCount = 32, ?int $regexMaxLength = null)
     {
         parent::__construct($result, $routeMaxCount, $regexMaxLength);
 
-        $this->routeMaxCountLength = (int)floor(log10($routeMaxCount) + 1);
+        $result[self::KEY_SUFFIX] =
+            '/' . str_pad('', 10 * strlen((string)$routeMaxCount), '0123456789') . '/';
+        $this->routeMaxCountLength = strlen((string)$routeMaxCount);
+        $this->regexSegmentsCount = (int)ceil($this->routeMaxCountLength / 2);
     }
 
     protected function convertNumberToRegex(int $number): string
@@ -100,7 +107,7 @@ class NumberBasedChunk extends RegexBasedAbstractChunk
 // 34 - .*(34)
 // 88 - .*(8.*8)
 // 89 - .*(89)
-// 90 - .*(9.*0)
+// 90 - .*(90)
 // 99 - .*(9.*9)
 // 100 - .*(1.*(0).*0)
 // 101 - .*(1.*(0)1)
