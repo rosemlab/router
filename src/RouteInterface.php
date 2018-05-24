@@ -8,4 +8,5 @@ interface RouteInterface
     public function getHandler();
     public function getRegex(): string;
     public function getVariableNames(): array;
+    public function getVariableRanges(): array;
 }

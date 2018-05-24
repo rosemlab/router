@@ -8,13 +8,15 @@ class Route implements RouteInterface
     protected $handler;
     protected $regex;
     protected $variableNames;
+    protected $variableRanges;
 
-    public function __construct(string $method, $handler, string $regex, array $variableNames)
+    public function __construct(string $method, $handler, array $data)
     {
         $this->method = $method;
         $this->handler = $handler;
-        $this->regex = $regex;
-        $this->variableNames = $variableNames;
+        $this->regex = $data[0];
+        $this->variableNames = $data[1];
+        $this->variableRanges = $data[2];
     }
 
     public function getMethod(): string
@@ -35,5 +37,10 @@ class Route implements RouteInterface
     public function getVariableNames(): array
     {
         return $this->variableNames;
+    }
+
+    public function getVariableRanges(): array
+    {
+        return $this->variableRanges;
     }
 }

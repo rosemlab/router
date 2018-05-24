@@ -14,7 +14,7 @@ class NumberBasedChunk extends RegexBasedAbstractChunk
 
     protected $routeMaxCountLength;
 
-    protected $regexSegmentsCount;
+    protected $regexSegmentCount;
 
     /**
      * NumberBasedChunk constructor.
@@ -32,7 +32,7 @@ class NumberBasedChunk extends RegexBasedAbstractChunk
         $result[self::KEY_SUFFIX] =
             '/' . str_pad('', 10 * strlen((string)$routeMaxCount), '0123456789') . '/';
         $this->routeMaxCountLength = strlen((string)$routeMaxCount);
-        $this->regexSegmentsCount = (int)ceil($this->routeMaxCountLength / 2);
+        $this->regexSegmentCount = (int)ceil($this->routeMaxCountLength / 2);
     }
 
     protected function convertNumberToRegex(int $number): string

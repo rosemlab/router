@@ -51,7 +51,7 @@ class RouteCollector
     {
         foreach ((array)$methods as $method) {
             foreach ($this->routeParser->parse($route) as $routeData) {
-                $routeInstance = new Route($method, $handler, ...$routeData);
+                $routeInstance = new Route($method, $handler, $routeData);
 
                 if (!isset($this->routes[$method])) {
                     $this->routes[$method] = [[]];
