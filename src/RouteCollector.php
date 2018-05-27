@@ -4,10 +4,12 @@ namespace Rosem\Route;
 
 use InvalidArgumentException;
 use Psrnext\Http\Message\RequestMethod;
-use Rosem\Route\Chunk\GroupCountBasedChunk;
-use Rosem\Route\Chunk\NumberBasedChunk;
+use Rosem\Route\DataGenerator\GroupCountBasedDataGenerator;
+use Rosem\Route\DataGenerator\MarkBasedDataGenerator;
+use Rosem\Route\DataGenerator\StringNumberBasedDataGenerator;
 use Rosem\Route\Dispatcher\GroupCountBasedDispatcher;
-use Rosem\Route\Dispatcher\NumberBasedDispatcher;
+use Rosem\Route\Dispatcher\MarkBasedDispatcher;
+use Rosem\Route\Dispatcher\StringNumberBasedDispatcher;
 use function count;
 
 class RouteCollector
@@ -16,17 +18,23 @@ class RouteCollector
 
     protected $routeDispatcher;
 
+    protected $routeData = [];
+
     protected $routes = [];
 
     protected $prefix = '';
 
+    /**
+     * @var DataGeneratorInterface
+     */
     protected $lastChunk;
 
     public function __construct()
     {
         $this->routeParser = new RouteParser();
 //        $this->routeDispatcher = new GroupCountBasedDispatcher();
-        $this->routeDispatcher = new NumberBasedDispatcher();
+//        $this->routeDispatcher = new StringNumberBasedDispatcher();
+        $this->routeDispatcher = new MarkBasedDispatcher();
     }
 
     public static function normalize(string $route): string
@@ -54,20 +62,25 @@ class RouteCollector
                 $routeInstance = new Route($method, $handler, $routeData);
 
                 if (!isset($this->routes[$method])) {
-                    $this->routes[$method] = [[]];
-//                    $this->lastChunk = new GroupCountBasedChunk($this->routes[$method][0]);
-                    $this->lastChunk = new NumberBasedChunk($this->routes[$method][0]);
+                    $this->routeData[$method] = [];
+                    $this->routes[$method] = [];
+//                    $this->lastChunk = new GroupCountBasedDataGenerator(
+//                        $this->routeData[$method],
+//                        $this->routes[$method]
+//                    );
+//                    $this->lastChunk = new StringNumberBasedDataGenerator(
+//                        $this->routeData[$method],
+//                        $this->routes[$method]
+//                    );
+                    $this->lastChunk = new MarkBasedDataGenerator(
+                        $this->routeData[$method],
+                        $this->routes[$method]
+                    );
                 }
 
-                if (count($routeInstance->getVariableNames())) { // Dynamic route
-                    if (!$this->lastChunk->addRoute($routeInstance)) {
-                        $lastChunk = [];
-                        $this->routes[$method][] = &$lastChunk;
-//                        $this->lastChunk = new GroupCountBasedChunk($lastChunk);
-                        $this->lastChunk = new NumberBasedChunk($lastChunk);
-                        $this->lastChunk->addRoute($routeInstance);
-                    }
-                } else { // Static route
+                if (count($routeInstance->getVariableNames())) { // dynamic route
+                    $this->lastChunk->addRoute($routeInstance);
+                } else { // static route
                     // TODO: static route handling
                 }
             }
@@ -95,7 +108,7 @@ class RouteCollector
      */
     public function make($method, string $uri): array
     {
-        return $this->routeDispatcher->dispatch($this->routes[$method], $uri);
+        return $this->routeDispatcher->dispatch($this->routeData[$method], $this->routes[$method], $uri);
     }
 
     /**

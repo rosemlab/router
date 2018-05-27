@@ -2,38 +2,36 @@
 
 namespace Rosem\Route\Dispatcher;
 
-use Psrnext\Http\Message\ResponseStatus;
-use Rosem\Route\ChunkInterface;
-use Rosem\Route\DispatcherInterface;
+use Rosem\Route\DataGenerator\GroupCountBasedDataGenerator;
 use function count;
 
-class GroupCountBasedDispatcher implements DispatcherInterface
+class GroupCountBasedDispatcher extends AbstractDispatcher
 {
     /**
-     * @param array[] $chunkCollection
-     * @param string  $uri
+     * @param array  $routeData
+     * @param array  $routes
+     * @param string $uri
      *
      * @return array
      */
-    public function dispatch(array $chunkCollection, string $uri): array
+    public function dispatch(array &$routeData, array &$routes, string &$uri): array
     {
-        foreach ($chunkCollection as $routeChunk) {
-            if (!preg_match($routeChunk[ChunkInterface::KEY_REGEX], $uri, $matches)) {
+        foreach ($routeData as &$data) {
+            if (!preg_match($data[GroupCountBasedDataGenerator::KEY_REGEX], $uri, $matches)) {
                 continue;
             }
 
-            [$handler, $variableNames] = $routeChunk[ChunkInterface::KEY_ROUTES][count($matches)];
+            [$handler, $variableNames] = $routes[count($matches) + $data[GroupCountBasedDataGenerator::KEY_OFFSET]];
             $variableData = [];
-            $i = 0;
 
             /** @var string[] $variableNames */
-            foreach ($variableNames as $variableName) {
-                $variableData[$variableName] = $matches[++$i];
+            foreach ($variableNames as $index => &$variableName) {
+                $variableData[$variableName] = &$matches[$index + 1];
             }
 
-            return [ResponseStatus::OK, $handler, $variableData];
+            return [self::ROUTE_FOUND, $handler, $variableData];
         }
 
-        return [ResponseStatus::NOT_FOUND, ResponseStatus::PHRASES[ResponseStatus::NOT_FOUND]];
+        return [self::ROUTE_NOT_FOUND, self::ROUTE_NOT_FOUND_PHRASE];
     }
 }

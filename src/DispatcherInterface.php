@@ -4,5 +4,5 @@ namespace Rosem\Route;
 
 interface DispatcherInterface
 {
-    public function dispatch(array $chunkCollection, string $uri): array;
+    public function dispatch(array &$routeData, array &$routes, string &$uri): array;
 }

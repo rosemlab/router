@@ -58,24 +58,39 @@ for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/a/' . $args);
 }
 $stats[ROSEM_ROUTER][FIRST] = microtime(true) - $startTime;
+if ($res[1] !== 'handler0') {
+    throw new \Exception('Invalid handler');
+}
 // middle route --------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/es/' . $args);
 }
 $stats[ROSEM_ROUTER][MIDDLE] = microtime(true) - $startTime;
+if ($res[1] !== 'handler148') {
+    throw new \Exception('Invalid handler');
+}
 // last route ----------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     $res = $router->make('GET', '/' . $lastStr . '/' . $args);
 }
 $stats[ROSEM_ROUTER][LAST] = microtime(true) - $startTime;
+if ($res[1] !== 'handler' . ($nRoutes - 1)) {
+    throw new \Exception('Invalid handler');
+}
 // unknown route -------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
-    $res = $router->make('GET', '/foobar/' . $args);
+    try {
+        $res = $router->make('GET', '/foobar/' . $args);
+        throw new \Exception('404');
+    } catch (\Exception $exception) {}
 }
 $stats[ROSEM_ROUTER][UNKNOWN] = microtime(true) - $startTime;
+if ($res[0] !== 404) {
+    throw new \Exception('Invalid response');
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 // FAST ROUTER =========================================================================================================
@@ -119,7 +134,8 @@ for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
     $lastStr = $str;
 }
 $dumper = new \Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper($router);
-eval('?'.'>'.$dumper->dump());
+$dump = $dumper->dump();
+eval('?'.'>'.$dump);
 $router = new \ProjectUrlMatcher(new \Symfony\Component\Routing\RequestContext());
 // first route ---------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
@@ -141,11 +157,11 @@ for ($i = 0; $i < $nMatches; $i++) {
 $stats[SYMFONY_ROUTER][LAST] = microtime(true) - $startTime;
 // unknown route -------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
-try {
-    for ($i = 0; $i < $nMatches; $i++) {
+for ($i = 0; $i < $nMatches; $i++) {
+    try {
         $res = $router->match('/foobar/' . $args);
-    }
-} catch (\Exception $exception) {}
+    } catch (\Exception $exception) {}
+}
 $stats[SYMFONY_ROUTER][UNKNOWN] = microtime(true) - $startTime;
 // ---------------------------------------------------------------------------------------------------------------------
 
