@@ -55,7 +55,7 @@ for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
 // first route ---------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
-    $res = $router->make('GET', '/a/' . $args);
+    $res = $router->dispatch('GET', '/a/' . $args);
 }
 $stats[ROSEM_ROUTER][FIRST] = microtime(true) - $startTime;
 if ($res[1] !== 'handler0') {
@@ -64,7 +64,7 @@ if ($res[1] !== 'handler0') {
 // middle route --------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
-    $res = $router->make('GET', '/es/' . $args);
+    $res = $router->dispatch('GET', '/es/' . $args);
 }
 $stats[ROSEM_ROUTER][MIDDLE] = microtime(true) - $startTime;
 if ($res[1] !== 'handler148') {
@@ -73,7 +73,7 @@ if ($res[1] !== 'handler148') {
 // last route ----------------------------------------------------------------------------------------------------------
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
-    $res = $router->make('GET', '/' . $lastStr . '/' . $args);
+    $res = $router->dispatch('GET', '/' . $lastStr . '/' . $args);
 }
 $stats[ROSEM_ROUTER][LAST] = microtime(true) - $startTime;
 if ($res[1] !== 'handler' . ($nRoutes - 1)) {
@@ -83,7 +83,7 @@ if ($res[1] !== 'handler' . ($nRoutes - 1)) {
 $startTime = microtime(true);
 for ($i = 0; $i < $nMatches; $i++) {
     try {
-        $res = $router->make('GET', '/foobar/' . $args);
+        $res = $router->dispatch('GET', '/foobar/' . $args);
         throw new \Exception('404');
     } catch (\Exception $exception) {}
 }

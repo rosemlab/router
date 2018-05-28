@@ -49,16 +49,16 @@ class RouteCollector
     }
 
     /**
-     * @param string|string[]          $methods
-     * @param string                   $route
-     * @param string|string[]|callable $handler
+     * @param string|string[] $methods
+     * @param string          $routePattern
+     * @param mixed           $handler
      *
      * @throws \Exception
      */
-    public function addRoute($methods, string $route, $handler): void
+    public function addRoute($methods, string $routePattern, $handler): void
     {
         foreach ((array)$methods as $method) {
-            foreach ($this->routeParser->parse($route) as $routeData) {
+            foreach ($this->routeParser->parse($routePattern) as $routeData) {
                 $routeInstance = new Route($method, $handler, $routeData);
 
                 if (!isset($this->routes[$method])) {
@@ -88,10 +88,10 @@ class RouteCollector
     }
 
     /**
-     * @param string|\Closure       $prefix
-     * @param string|array|\Closure $group
+     * @param string   $prefix
+     * @param callable $group
      */
-    public function prefix(string $prefix, $group)
+    public function group(string $prefix, $group): void
     {
         $this->prefix = ($prefix[0] === '/'
             ? static::normalize($prefix)
@@ -102,11 +102,11 @@ class RouteCollector
 
     /**
      * @param string $method
-     * @param string $route
+     * @param string $uri
      *
      * @return array
      */
-    public function make($method, string $uri): array
+    public function dispatch($method, string $uri): array
     {
         return $this->routeDispatcher->dispatch($this->routeData[$method], $this->routes[$method], $uri);
     }

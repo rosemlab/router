@@ -8,11 +8,11 @@ $route->addRoute('GET', '/a/{arg1}/{arg2}', '2');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}/{arg4}', '4');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}', '3');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}/{arg4}/{arg5}/{arg6}/{arg7}/{arg8}/{arg9}/{arg10}/{arg11}/{arg12}/{arg13}/{arg14}', '14');
-$res = $route->make('GET', '/a/1/2');
-$res = $route->make('GET', '/a/1/2/3/4');
-$res = $route->make('GET', '/a/1/2/3');
-$res = $route->make('GET', '/a/1/2/3/4/5/6/7/8/9/10/11/12/13/14');
-var_dump($route->make('GET', '/user/roman_shevchenko'));
+$res = $route->dispatch('GET', '/a/1/2');
+$res = $route->dispatch('GET', '/a/1/2/3/4');
+$res = $route->dispatch('GET', '/a/1/2/3');
+$res = $route->dispatch('GET', '/a/1/2/3/4/5/6/7/8/9/10/11/12/13/14');
+var_dump($route->dispatch('GET', '/user/roman_shevchenko'));
 
 die;
 
@@ -67,5 +67,5 @@ $route = new Rosem\Route\RouteCollector();
 
 $route->addRoute('GET', '/user/{test}/{id}/{name:\w+}', 'get_user');
 $route->addRoute('GET', '/post/{id:\d+}', 'get_post');
-$result = $route->make('GET', '/post/25');
+$result = $route->dispatch('GET', '/post/25');
 var_dump($result);
