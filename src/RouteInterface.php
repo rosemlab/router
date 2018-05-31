@@ -2,13 +2,13 @@
 
 namespace Rosem\Route;
 
-interface RouteInterface
+use Psrnext\Route\RouteInterface as StandardRouteInterface;
+
+interface RouteInterface extends StandardRouteInterface
 {
-    public function getMethod(): string;
-
-    public function getHandler();
-
     public function getRegex(): string;
 
     public function getVariableNames(): array;
+
+    public function &getMiddlewareReference(): array;
 }

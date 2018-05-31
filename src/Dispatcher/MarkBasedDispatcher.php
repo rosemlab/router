@@ -5,17 +5,17 @@ namespace Rosem\Route\Dispatcher;
 class MarkBasedDispatcher extends AbstractDispatcher
 {
     /**
+     * @param array  $routeMap
      * @param array  $routeData
-     * @param array  $routes
      * @param string $uri
      *
      * @return array
      */
-    public function dispatch(array &$routeData, array &$routes, string &$uri): array
+    public function dispatch(array &$routeMap, array &$routeData, string &$uri): array
     {
-        foreach ($routeData as &$regex) {
+        foreach ($routeMap as &$regex) {
             if (preg_match($regex, $uri, $matches)) {
-                [$handler, $variableNames] = $routes[$matches['MARK']];
+                [$handler, $middleware, $variableNames] = $routeData[$matches['MARK']];
                 $variableData = [];
 
                 /** @var string[] $variableNames */
@@ -23,10 +23,10 @@ class MarkBasedDispatcher extends AbstractDispatcher
                     $variableData[$variableName] = &$matches[$index + 1];
                 }
 
-                return [self::ROUTE_FOUND, $handler, $variableData];
+                return [self::ROUTE_FOUND, $handler, $middleware, $variableData];
             }
         }
 
-        return [self::ROUTE_NOT_FOUND, self::ROUTE_NOT_FOUND_PHRASE];
+        return [self::ROUTE_NOT_FOUND];
     }
 }

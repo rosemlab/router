@@ -21,23 +21,23 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
     /**
      * NumberBasedChunk constructor.
      *
+     * @param array    $routeMap
      * @param array    $routeData
-     * @param array    $routes
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
+        array &$routeMap,
         array &$routeData,
-        array &$routes,
         int $routeCountPerRegex = 100,
         ?int $regexMaxLength = null
     ) {
-        parent::__construct($routeData, $routes, $routeCountPerRegex, $regexMaxLength);
+        parent::__construct($routeMap, $routeData, $routeCountPerRegex, $regexMaxLength);
 
         $routeMaxCountLength = strlen((string)($routeCountPerRegex - 1));
-        $routeData[] = [
+        $routeMap[] = [
             self::KEY_REGEX => '',
             self::KEY_SUFFIX =>
                 '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',
@@ -53,14 +53,14 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
      */
     public function addRoute(RouteInterface $route): void
     {
-        $index = count($this->routes);
+        $index = count($this->routeData);
 
         if ($index - $this->offset >= $this->routeCountPerRegex) {
             $this->regexTree->clear();
             $this->offset = $index;
             $this->routeCountPerRegex = 900; // TODO: auto-generate
             $routeMaxCountLength = strlen((string)($this->routeCountPerRegex - 1));
-            $this->routeData[] = [
+            $this->routeMap[] = [
                 self::KEY_REGEX => '',
                 self::KEY_SUFFIX =>
                     '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',
@@ -69,9 +69,10 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
         }
 
         $this->addRegex($route->getRegex() . '/' . $this->convertNumberToRegex($index));
-        $this->routeData[count($this->routeData) - 1][self::KEY_REGEX] =
+        $this->routeMap[count($this->routeMap) - 1][self::KEY_REGEX] =
             '~^' . $this->regex . '.*/$~sD' . ($this->utf8 ? 'u' : '');
-        $this->routes[] = [$route->getHandler(), $route->getVariableNames()];
+        $middleware = &$route->getMiddlewareReference();
+        $this->routeData[] = [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }
 
     protected function convertNumberToRegex(int $number): string

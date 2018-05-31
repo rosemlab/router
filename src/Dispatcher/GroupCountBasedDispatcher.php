@@ -21,7 +21,7 @@ class GroupCountBasedDispatcher extends AbstractDispatcher
                 continue;
             }
 
-            [$handler, $variableNames] = $routes[count($matches) + $data[GroupCountBasedDataGenerator::KEY_OFFSET]];
+            [$handler, $middleware, $variableNames] = $routes[count($matches) + $data[GroupCountBasedDataGenerator::KEY_OFFSET]];
             $variableData = [];
 
             /** @var string[] $variableNames */
@@ -29,9 +29,9 @@ class GroupCountBasedDispatcher extends AbstractDispatcher
                 $variableData[$variableName] = &$matches[$index + 1];
             }
 
-            return [self::ROUTE_FOUND, $handler, $variableData];
+            return [self::ROUTE_FOUND, $handler, $middleware, $variableData];
         }
 
-        return [self::ROUTE_NOT_FOUND, self::ROUTE_NOT_FOUND_PHRASE];
+        return [self::ROUTE_NOT_FOUND];
     }
 }

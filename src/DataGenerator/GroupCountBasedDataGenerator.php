@@ -20,22 +20,22 @@ class GroupCountBasedDataGenerator extends AbstractRegexBasedDataGenerator
     /**
      * GroupCountBasedChunk constructor.
      *
+     * @param array    $routeMap
      * @param array    $routeData
-     * @param array    $routes
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
+        array &$routeMap,
         array &$routeData,
-        array &$routes,
         int $routeCountPerRegex = 10,
         ?int $regexMaxLength = null
     ) {
-        parent::__construct($routeData, $routes, $routeCountPerRegex, $regexMaxLength);
+        parent::__construct($routeMap, $routeData, $routeCountPerRegex, $regexMaxLength);
 
-        $this->routeData[] = [
+        $this->routeMap[] = [
             self::KEY_REGEX => '',
             self::KEY_OFFSET => $this->groupCount,
         ];
@@ -51,12 +51,12 @@ class GroupCountBasedDataGenerator extends AbstractRegexBasedDataGenerator
     {
         $offset = $this->routeCountPerRegex * $this->chunkCount;
 
-        if (count($this->routes) - $offset >= $this->routeCountPerRegex) {
+        if (count($this->routeData) - $offset >= $this->routeCountPerRegex) {
             $this->regexTree->clear();
             $this->groupCount = 0;
             ++$this->chunkCount;
             $offset += $this->routeCountPerRegex;
-            $this->routeData[] = [
+            $this->routeMap[] = [
                 self::KEY_REGEX => '',
                 self::KEY_OFFSET => $offset,
             ];
@@ -66,9 +66,11 @@ class GroupCountBasedDataGenerator extends AbstractRegexBasedDataGenerator
         $this->groupCount = max($this->groupCount, $variableCount);
         // TODO: check if route regex has groups
         $this->addRegex($route->getRegex() . str_repeat('()', $this->groupCount - $variableCount));
-        $this->routeData[count($this->routeData) - 1][self::KEY_REGEX] =
+        $this->routeMap[count($this->routeMap) - 1][self::KEY_REGEX] =
             '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
         ++$this->groupCount; // +1 for first regex matching / next route index
-        $this->routes[$offset + $this->groupCount] = [$route->getHandler(), $route->getVariableNames()];
+        $middleware = &$route->getMiddlewareReference();
+        $this->routeData[$offset + $this->groupCount] =
+            [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }
 }

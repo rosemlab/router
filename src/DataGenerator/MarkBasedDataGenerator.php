@@ -13,22 +13,22 @@ class MarkBasedDataGenerator extends AbstractRegexBasedDataGenerator
     /**
      * MarkBasedChunk constructor.
      *
+     * @param array    $routeMap
      * @param array    $routeData
-     * @param array    $routes
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
+        array &$routeMap,
         array &$routeData,
-        array &$routes,
         int $routeCountPerRegex = PHP_INT_MAX,
         ?int $regexMaxLength = null
     ) {
-        parent::__construct($routeData, $routes, $routeCountPerRegex, $regexMaxLength);
+        parent::__construct($routeMap, $routeData, $routeCountPerRegex, $regexMaxLength);
 
-        $routeData[] = '';
+        $routeMap[] = '';
     }
 
     /**
@@ -39,16 +39,17 @@ class MarkBasedDataGenerator extends AbstractRegexBasedDataGenerator
      */
     public function addRoute(RouteInterface $route): void
     {
-        $index = count($this->routes);
+        $index = count($this->routeData);
 
         if ($index - $this->offset >= $this->routeCountPerRegex) {
             $this->regexTree->clear();
             $this->offset = $index;
-            $this->routeData[] = '';
+            $this->routeMap[] = '';
         }
 
         $this->addRegex($route->getRegex() . '(*:' . $index . ')');
-        $this->routeData[count($this->routeData) - 1] = '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
-        $this->routes[] = [$route->getHandler(), $route->getVariableNames()];
+        $this->routeMap[count($this->routeMap) - 1] = '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
+        $middleware = &$route->getMiddlewareReference();
+        $this->routeData[] = [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }
 }

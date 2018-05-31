@@ -33,11 +33,11 @@ class StringNumberBasedDispatcher extends AbstractDispatcher
                 $indexString = $lastMatch[0] . $indexString . (isset($lastMatch[1]) ? $lastMatch[-1] : '');
             } while (--$segmentCount);
 
-            [$handler, $variableNames] = $routes[(int)$indexString];
+            [$handler, $middleware, $variableNames] = $routes[(int)$indexString];
 
-            return [self::ROUTE_FOUND, $handler, array_combine($variableNames, $matches)];
+            return [self::ROUTE_FOUND, $handler, $middleware, array_combine($variableNames, $matches)];
         }
 
-        return [self::ROUTE_NOT_FOUND, self::ROUTE_NOT_FOUND_PHRASE];
+        return [self::ROUTE_NOT_FOUND];
     }
 }

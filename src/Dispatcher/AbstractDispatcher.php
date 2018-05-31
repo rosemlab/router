@@ -2,13 +2,13 @@
 
 namespace Rosem\Route\Dispatcher;
 
-use Psrnext\Http\Message\ResponseStatus;
+use Fig\Http\Message\StatusCodeInterface;
 
 abstract class AbstractDispatcher
 {
-    protected const ROUTE_FOUND = ResponseStatus::OK;
+    protected const ROUTE_FOUND = StatusCodeInterface::STATUS_OK;
 
-    protected const ROUTE_NOT_FOUND = ResponseStatus::NOT_FOUND;
+    protected const ROUTE_METHOD_NOT_ALLOWED = StatusCodeInterface::STATUS_METHOD_NOT_ALLOWED;
 
-    protected const ROUTE_NOT_FOUND_PHRASE = ResponseStatus::PHRASES[ResponseStatus::NOT_FOUND];
+    protected const ROUTE_NOT_FOUND = StatusCodeInterface::STATUS_NOT_FOUND;
 }

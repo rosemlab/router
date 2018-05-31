@@ -31,8 +31,22 @@ $ composer require rosemlab/router
 ## Usage
 
 ``` php
-$skeleton = new Rosem\Router();
-echo $skeleton->echoPhrase('Hello, League!');
+$router = new Rosem\Route\Router();
+$router->addRoute('GET', '/user/{id:\d+}', 'handler')
+    ->setMiddleware('Auth', 'CSRF');
+$router->dispatch('/user/123');
+// Result:
+// [
+//     0 => 200, // Status
+//     1 => 'handler',
+//     2 => [
+//          0 => 'Auth',
+//          1 => 'CSRF',
+//     ],
+//     3 => [
+//          id => '123',
+//     ],
+// ]
 ```
 
 ## Change log

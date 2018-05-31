@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$route = new Rosem\Route\RouteCollector();
+$route = new Rosem\Route\Router();
 //$route->addRoute('GET', '/user/{fullName:(?<firstName>[a-z]+\w*)_(?<lastName>[a-z]\w*)}', 'test');
-$route->addRoute('GET', '/a/{arg1}/{arg2}', '2');
+$route->addRoute('GET', '/a/{arg1}/{arg2}', '2')->setMiddleware('MIDDLEWARE');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}/{arg4}', '4');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}', '3');
 $route->addRoute('GET', '/a/{arg1}/{arg2}/{arg3}/{arg4}/{arg5}/{arg6}/{arg7}/{arg8}/{arg9}/{arg10}/{arg11}/{arg12}/{arg13}/{arg14}', '14');
@@ -63,7 +63,7 @@ die;
 //
 //die;
 
-$route = new Rosem\Route\RouteCollector();
+$route = new Rosem\Route\Router();
 
 $route->addRoute('GET', '/user/{test}/{id}/{name:\w+}', 'get_user');
 $route->addRoute('GET', '/post/{id:\d+}', 'get_post');

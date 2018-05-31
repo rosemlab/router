@@ -47,7 +47,7 @@ echo <<<HTML
 HTML;
 
 // ROSEM ROUTER ========================================================================================================
-$router = new \Rosem\Route\RouteCollector();
+$router = new \Rosem\Route\Router();
 for ($i = 0, $str = 'a'; $i < $nRoutes; $i++, $str++) {
     $router->addRoute('GET', '/' . $str . '/' . $args, 'handler' . $i);
     $lastStr = $str;

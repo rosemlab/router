@@ -4,10 +4,6 @@ namespace Rosem\Route;
 
 class RouteParser implements RouteParserInterface
 {
-    public const DATA_KEY_REGEX = 0;
-
-    public const DATA_KEY_VARIABLE_NAMES = 1;
-
     protected const VARIABLE_TOKENS = ['{', '}'];
 
     protected const VARIABLE_REGEX_TOKEN = ':';

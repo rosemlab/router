@@ -11,9 +11,9 @@ abstract class AbstractRegexBasedDataGenerator implements DataGeneratorInterface
 {
     protected const REGEX_ADDITIONAL_LENGTH = 8;
 
-    protected $routeData;
+    protected $routeMap;
 
-    protected $routes;
+    protected $routeData;
 
     protected $routeCountPerRegex;
 
@@ -33,16 +33,16 @@ abstract class AbstractRegexBasedDataGenerator implements DataGeneratorInterface
     /**
      * NumberBasedChunk constructor.
      *
+     * @param array    $routeMap
      * @param array    $routeData
-     * @param array    $routes
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
+        array &$routeMap,
         array &$routeData,
-        array &$routes,
         int $routeCountPerRegex,
         ?int $regexMaxLength = null
     ) {
@@ -50,8 +50,8 @@ abstract class AbstractRegexBasedDataGenerator implements DataGeneratorInterface
             throw new InvalidArgumentException('Limit of routes should be a positive integer number');
         }
 
+        $this->routeMap = &$routeMap;
         $this->routeData = &$routeData;
-        $this->routes = &$routes;
         $this->routeCountPerRegex = $routeCountPerRegex;
         $this->regexMaxLength = $regexMaxLength ?: (int)ini_get('pcre.backtrack_limit') ?: 1000000;
         $this->regexTree = new RegexTreeNode();
