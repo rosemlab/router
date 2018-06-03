@@ -3,8 +3,9 @@
 namespace Rosem\Route\Dispatcher;
 
 use Fig\Http\Message\StatusCodeInterface;
+use Rosem\Route\DispatcherInterface;
 
-abstract class AbstractDispatcher
+abstract class AbstractDispatcher implements DispatcherInterface
 {
     protected const ROUTE_FOUND = StatusCodeInterface::STATUS_OK;
 

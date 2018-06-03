@@ -21,23 +21,19 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
     /**
      * NumberBasedChunk constructor.
      *
-     * @param array    $routeMap
-     * @param array    $routeData
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        array &$routeMap,
-        array &$routeData,
         int $routeCountPerRegex = 100,
         ?int $regexMaxLength = null
     ) {
-        parent::__construct($routeMap, $routeData, $routeCountPerRegex, $regexMaxLength);
+        parent::__construct($routeCountPerRegex, $regexMaxLength);
 
         $routeMaxCountLength = strlen((string)($routeCountPerRegex - 1));
-        $routeMap[] = [
+        $this->routeMap[] = [
             self::KEY_REGEX => '',
             self::KEY_SUFFIX =>
                 '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',

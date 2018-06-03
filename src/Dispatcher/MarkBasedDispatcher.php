@@ -23,7 +23,7 @@ class MarkBasedDispatcher extends AbstractDispatcher
                     $variableData[$variableName] = &$matches[$index + 1];
                 }
 
-                return [self::ROUTE_FOUND, $handler, $middleware, $variableData];
+                return [self::ROUTE_FOUND, $middleware, $handler, $variableData];
             }
         }
 

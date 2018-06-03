@@ -20,20 +20,16 @@ class GroupCountBasedDataGenerator extends AbstractRegexBasedDataGenerator
     /**
      * GroupCountBasedChunk constructor.
      *
-     * @param array    $routeMap
-     * @param array    $routeData
      * @param int      $routeCountPerRegex
      * @param int|null $regexMaxLength
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        array &$routeMap,
-        array &$routeData,
         int $routeCountPerRegex = 10,
         ?int $regexMaxLength = null
     ) {
-        parent::__construct($routeMap, $routeData, $routeCountPerRegex, $regexMaxLength);
+        parent::__construct($routeCountPerRegex, $regexMaxLength);
 
         $this->routeMap[] = [
             self::KEY_REGEX => '',
