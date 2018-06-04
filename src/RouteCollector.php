@@ -56,21 +56,22 @@ class RouteCollector extends AbstractRouteCollector
         $route = $this->compiler->compile((array)$methods, self::normalize($routePattern), $handler);
 
         foreach ($route->getMethods() as $method) {
-            if (!isset($this->variableRouteMap[$method])) {
-                $this->variableRouteMap[$method] = new MarkBasedDataGenerator();
-//                new GroupCountBasedDataGenerator();
-//                new StringNumberBasedDataGenerator();
-            }
-
             if (count($route->getVariableNames())) { // dynamic route
+                if (!isset($this->variableRouteMap[$method])) {
+                    $this->variableRouteMap[$method] = new MarkBasedDataGenerator();
+    //                new GroupCountBasedDataGenerator();
+    //                new StringNumberBasedDataGenerator();
+                }
+
                 $this->variableRouteMap[$method]->addRoute($route);
             } else { // static route
                 if (!isset($this->staticRouteMap[$method])) {
                     $this->staticRouteMap[$method] = [];
                 }
 
+                $middleware = &$route->getMiddlewareReference();
                 $this->staticRouteMap[$method][$routePattern] =
-                    [$route->getMiddlewareReference(), $route->getHandler()];
+                    [&$middleware, $route->getHandler()];
             }
         }
 
