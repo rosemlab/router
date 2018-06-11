@@ -32,16 +32,32 @@ $ composer require rosem/route
 
 ``` php
 $router = new Rosem\Route\Router();
-$router->addRoute('GET', '/user/{id:\d+}', 'handler')
-    ->setMiddleware('Auth', 'CSRF');
+
+$router->addRoute('GET', '/user/{id:\d+}', 'handle')
+    ->addMiddleware('Auth', ['setType' => 'digest'])
+    ->addMiddleware('CSRF');
+
 $result = $router->dispatch('GET', '/user/123');
+
 echo $result === [
-    0 => 200, // HTTP status code
-    1 => 'handler',
+    // HTTP status code
+    0 => 200,
+    // Handler
+    1 => 'handle',
+    // Middleware list
     2 => [
-         0 => 'Auth',
-         1 => 'CSRF',
+         0 => [
+            0 => 'Auth',
+            1 => [
+                'setName' => 'digest',
+            ]
+         ],
+         1 => [
+            0 => 'CSRF',
+            1 => []
+         ],
     ],
+    // Variables list
     3 => [
          'id' => '123',
     ],

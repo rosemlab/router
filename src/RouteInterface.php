@@ -10,5 +10,5 @@ interface RouteInterface extends StandardRouteInterface
 
     public function getVariableNames(): array;
 
-    public function &getMiddlewareReference(): array;
+    public function &getMiddlewareListReference(): array;
 }

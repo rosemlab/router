@@ -1,7 +1,7 @@
 {
     "name": "rosem/route",
     "type": "library",
-    "description": "The route package",
+    "description": "The route management package",
     "keywords": [
         "rosem",
         "route",
@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "~7.2",
-        "psrnext/route": "~0.2"
+        "psrnext/route": "~0.4"
     },
     "require-dev": {
         "kint-php/kint": "^2.2",

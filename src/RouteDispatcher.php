@@ -62,9 +62,9 @@ class RouteDispatcher implements RouteDispatcherInterface
     public function dispatch(string $method, string $uri): array
     {
         if (isset($this->staticRouteMap[$method][$uri])) {
-            [$middleware, $handler] = $this->staticRouteMap[$method][$uri];
+            [$handler, $middleware] = $this->staticRouteMap[$method][$uri];
 
-            return [200, $middleware, $handler, []]; // TODO: move to static dispatcher
+            return [200, $handler, $middleware, []]; // TODO: move to static dispatcher
         }
 
         return $this->variableDispatcher->dispatch(

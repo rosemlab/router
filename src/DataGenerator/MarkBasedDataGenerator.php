@@ -45,7 +45,7 @@ class MarkBasedDataGenerator extends AbstractRegexBasedDataGenerator
 
         $this->addRegex($route->getRegex() . '(*:' . $index . ')');
         $this->routeMap[count($this->routeMap) - 1] = '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
-        $middleware = &$route->getMiddlewareReference();
+        $middleware = &$route->getMiddlewareListReference();
         $this->routeData[] = [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }
 }

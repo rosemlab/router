@@ -2,7 +2,7 @@
 
 namespace Rosem\Route;
 
-class RouteCompiler
+class RouteCompiler implements RouteCompilerInterface
 {
     /**
      * @var RouteParserInterface

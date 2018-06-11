@@ -35,7 +35,7 @@ class StringNumberBasedDispatcher extends AbstractDispatcher
 
             [$handler, $middleware, $variableNames] = $routes[(int)$indexString];
 
-            return [self::ROUTE_FOUND, $middleware, $handler, array_combine($variableNames, $matches)];
+            return [self::ROUTE_FOUND, $handler, $middleware, array_combine($variableNames, $matches)];
         }
 
         return [self::ROUTE_NOT_FOUND];

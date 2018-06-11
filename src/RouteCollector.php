@@ -3,15 +3,8 @@
 namespace Rosem\Route;
 
 use Psrnext\Route\AbstractRouteCollector;
-use Psrnext\Route\GenericRouteInterface;
+use Psrnext\Route\RouteGroupInterface;
 use Psrnext\Route\RouteInterface;
-use Rosem\Route\DataGenerator\GroupCountBasedDataGenerator;
-use Rosem\Route\DataGenerator\MarkBasedDataGenerator;
-use Rosem\Route\DataGenerator\StringNumberBasedDataGenerator;
-use Rosem\Route\Dispatcher\AbstractDispatcher;
-use Rosem\Route\Dispatcher\GroupCountBasedDispatcher;
-use Rosem\Route\Dispatcher\MarkBasedDispatcher;
-use Rosem\Route\Dispatcher\StringNumberBasedDispatcher;
 use function count;
 
 class RouteCollector extends AbstractRouteCollector
@@ -25,17 +18,21 @@ class RouteCollector extends AbstractRouteCollector
      */
     protected $compiler;
 
+    /**
+     * @var DataGeneratorInterface
+     */
+    protected $dataGenerator;
+
     protected $staticRouteMap = [];
 
     protected $variableRouteMap = [];
 
     protected $prefix = '';
 
-    public function __construct()
+    public function __construct(RouteCompilerInterface $compiler, DataGeneratorInterface $dataGenerator)
     {
-        $this->compiler = new RouteCompiler(new RouteParser());
-//        $this->routeDispatcher = new GroupCountBasedDispatcher();
-//        $this->routeDispatcher = new StringNumberBasedDispatcher();
+        $this->compiler = $compiler;
+        $this->dataGenerator = $dataGenerator;
     }
 
     protected static function normalize(string $route): string
@@ -58,9 +55,7 @@ class RouteCollector extends AbstractRouteCollector
         foreach ($route->getMethods() as $method) {
             if (count($route->getVariableNames())) { // dynamic route
                 if (!isset($this->variableRouteMap[$method])) {
-                    $this->variableRouteMap[$method] = new MarkBasedDataGenerator();
-    //                new GroupCountBasedDataGenerator();
-    //                new StringNumberBasedDataGenerator();
+                    $this->variableRouteMap[$method] = clone $this->dataGenerator;
                 }
 
                 $this->variableRouteMap[$method]->addRoute($route);
@@ -69,9 +64,8 @@ class RouteCollector extends AbstractRouteCollector
                     $this->staticRouteMap[$method] = [];
                 }
 
-                $middleware = &$route->getMiddlewareReference();
-                $this->staticRouteMap[$method][$routePattern] =
-                    [&$middleware, $route->getHandler()];
+                $middleware = &$route->getMiddlewareListReference();
+                $this->staticRouteMap[$method][$routePattern] = [$route->getHandler(), &$middleware];
             }
         }
 
@@ -82,9 +76,9 @@ class RouteCollector extends AbstractRouteCollector
      * @param string   $prefix
      * @param callable $group
      *
-     * @return GenericRouteInterface
+     * @return RouteGroupInterface
      */
-    public function addGroup(string $prefix, callable $group): GenericRouteInterface
+    public function addGroup(string $prefix, callable $group): RouteGroupInterface
     {
         $this->prefix .= self::normalize($prefix);
         $group($this);

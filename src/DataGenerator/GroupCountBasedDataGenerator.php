@@ -65,7 +65,7 @@ class GroupCountBasedDataGenerator extends AbstractRegexBasedDataGenerator
         $this->routeMap[count($this->routeMap) - 1][self::KEY_REGEX] =
             '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
         ++$this->groupCount; // +1 for first regex matching / next route index
-        $middleware = &$route->getMiddlewareReference();
+        $middleware = &$route->getMiddlewareListReference();
         $this->routeData[$offset + $this->groupCount] =
             [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }

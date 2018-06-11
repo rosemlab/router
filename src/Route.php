@@ -2,6 +2,8 @@
 
 namespace Rosem\Route;
 
+use Psrnext\Route\RouteInterface as GenericRouteInterface;
+
 class Route implements RouteInterface
 {
     protected $methods;
@@ -14,7 +16,7 @@ class Route implements RouteInterface
 
     protected $schemes;
 
-    protected $middleware = [];
+    protected $middlewareList = [];
 
     protected $regex;
 
@@ -37,11 +39,23 @@ class Route implements RouteInterface
         return $this->variableNames;
     }
 
+    /**
+     * Retrieves the HTTP methods of the route.
+     *
+     * @return string[] Returns the route methods.
+     */
     public function getMethods(): array
     {
         return $this->methods;
     }
 
+    /**
+     * Retrieves the server request handler.
+     *
+     * @return string
+     *
+     * @see \Psr\Http\Server\RequestHandlerInterface
+     */
     public function getHandler(): string
     {
         return $this->handler;
@@ -77,18 +91,36 @@ class Route implements RouteInterface
     /**
      * Sets the middleware logic to be executed before route will be resolved.
      *
-     * @param string ...$middleware
+     * @param string $middleware
+     * @param array  $options
      *
-     * @return void
+     * @return GenericRouteInterface
      * @see \Psr\Http\Server\MiddlewareInterface
      */
-    public function setMiddleware(string ...$middleware): void
+    public function addMiddleware(string $middleware, array $options = []): GenericRouteInterface
     {
-        $this->middleware = $middleware;
+        $this->middlewareList[] = [$middleware, $options];
+
+        return $this;
     }
 
-    public function &getMiddlewareReference(): array
+    /**
+     * Retrieves middleware list.
+     *
+     * @return array
+     */
+    public function getMiddlewareList(): array
     {
-        return $this->middleware;
+        return $this->middlewareList;
+    }
+
+    /**
+     * Retrieves middleware list reference.
+     *
+     * @return array
+     */
+    public function &getMiddlewareListReference(): array
+    {
+        return $this->middlewareList;
     }
 }
