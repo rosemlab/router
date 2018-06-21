@@ -2,16 +2,14 @@
 
 namespace Rosem\Route;
 
-use Psrnext\Route\AbstractRouteCollector;
-use Psrnext\Route\RouteGroupInterface;
-use Psrnext\Route\RouteInterface;
+use Psrnext\Route\{
+    AbstractRouteCollector, RouteGroupInterface, RouteInterface
+};
 use function count;
 
 class RouteCollector extends AbstractRouteCollector
 {
-    public const STATIC_ROUTE_MAP = 0;
-
-    public const VARIABLE_ROUTE_MAP = 1;
+    use RouteMapTrait;
 
     /**
      * @var RouteCompiler
@@ -19,17 +17,16 @@ class RouteCollector extends AbstractRouteCollector
     protected $compiler;
 
     /**
-     * @var DataGeneratorInterface
+     * @var RegexBasedDataGeneratorInterface
      */
     protected $dataGenerator;
 
-    protected $staticRouteMap = [];
-
-    protected $variableRouteMap = [];
-
+    /**
+     * @var string
+     */
     protected $prefix = '';
 
-    public function __construct(RouteCompilerInterface $compiler, DataGeneratorInterface $dataGenerator)
+    public function __construct(RouteCompilerInterface $compiler, RegexBasedDataGeneratorInterface $dataGenerator)
     {
         $this->compiler = $compiler;
         $this->dataGenerator = $dataGenerator;
@@ -46,7 +43,7 @@ class RouteCollector extends AbstractRouteCollector
      * @param mixed           $handler
      *
      * @return RouteInterface
-     * @throws \Exception
+     * @throws Exception\TooLongRouteException
      */
     public function addRoute($methods, string $routePattern, $handler): RouteInterface
     {
@@ -58,7 +55,13 @@ class RouteCollector extends AbstractRouteCollector
                     $this->variableRouteMap[$method] = clone $this->dataGenerator;
                 }
 
-                $this->variableRouteMap[$method]->addRoute($route);
+                try {
+                    $this->variableRouteMap[$method]->addRoute($route);
+                } catch (Exception\TooLongRouteException $exception) {
+//                    $this->variableRouteMap[$method]->rollback(); // TODO: add rollback
+                    $this->variableRouteMap[$method]->newChunk();
+                    $this->variableRouteMap[$method]->addRoute($route);
+                }
             } else { // static route
                 if (!isset($this->staticRouteMap[$method])) {
                     $this->staticRouteMap[$method] = [];
@@ -89,11 +92,16 @@ class RouteCollector extends AbstractRouteCollector
     /**
      * @return array
      */
-    public function getMap(): array
+    public function getStaticRouteMap(): array
     {
-        return [
-            self::STATIC_ROUTE_MAP => $this->staticRouteMap,
-            self::VARIABLE_ROUTE_MAP => $this->variableRouteMap,
-        ];
+        return $this->staticRouteMap;
+    }
+
+    /**
+     * @return array
+     */
+    public function getVariableRouteMap(): array
+    {
+        return $this->variableRouteMap;
     }
 }

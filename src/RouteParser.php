@@ -16,11 +16,11 @@ class RouteParser implements RouteParserInterface
     {
         // {\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*:?([^\/]*?[^{]*)}
         $this->variableSplitRegex = '/'
-        . static::VARIABLE_TOKENS[0]
-        . '\s*([[:alpha:]_][[:alnum:]_-]*)\s*' . static::VARIABLE_REGEX_TOKEN
-        . '?([^\\/]*?[^' . static::VARIABLE_TOKENS[0] . ']*)'
-        . static::VARIABLE_TOKENS[1]
-        . '/';
+            . static::VARIABLE_TOKENS[0]
+            . '\s*([[:alpha:]_][[:alnum:]_-]*)\s*' . static::VARIABLE_REGEX_TOKEN
+            . '?([^\\/]*?[^' . static::VARIABLE_TOKENS[0] . ']*)'
+            . static::VARIABLE_TOKENS[1]
+            . '/';
 
         if ($useUtf8) {
             $this->variableSplitRegex .= 'u';

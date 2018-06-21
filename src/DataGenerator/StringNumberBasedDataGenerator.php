@@ -14,9 +14,7 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
 
     public const KEY_SEGMENT_COUNT = 2;
 
-    protected const REGEX_ADDITIONAL_LENGTH = 11;
-
-    protected $offset = 0;
+    protected $lastChunkOffset = 0;
 
     /**
      * NumberBasedChunk constructor.
@@ -33,7 +31,21 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
         parent::__construct($routeCountPerRegex, $regexMaxLength);
 
         $routeMaxCountLength = strlen((string)($routeCountPerRegex - 1));
-        $this->routeMap[] = [
+        $this->routeExpressions[] = [
+            self::KEY_REGEX => '',
+            self::KEY_SUFFIX =>
+                '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',
+            self::KEY_SEGMENT_COUNT => (int)ceil($routeMaxCountLength / 2),
+        ];
+    }
+
+    public function newChunk(): void
+    {
+        $this->regexTree->clear();
+        $this->lastChunkOffset = $this->lastInsertId;
+        $this->routeCountPerRegex = 900; // TODO: auto-generate
+        $routeMaxCountLength = strlen((string)($this->routeCountPerRegex - 1));
+        $this->routeExpressions[] = [
             self::KEY_REGEX => '',
             self::KEY_SUFFIX =>
                 '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',
@@ -49,23 +61,14 @@ class StringNumberBasedDataGenerator extends AbstractRegexBasedDataGenerator
      */
     public function addRoute(RouteInterface $route): void
     {
-        $index = count($this->routeData);
+        $this->lastInsertId = count($this->routeData);
 
-        if ($index - $this->offset >= $this->routeCountPerRegex) {
-            $this->regexTree->clear();
-            $this->offset = $index;
-            $this->routeCountPerRegex = 900; // TODO: auto-generate
-            $routeMaxCountLength = strlen((string)($this->routeCountPerRegex - 1));
-            $this->routeMap[] = [
-                self::KEY_REGEX => '',
-                self::KEY_SUFFIX =>
-                    '/' . str_pad('', 10 * $routeMaxCountLength, '0123456789') . '/',
-                self::KEY_SEGMENT_COUNT => (int)ceil($routeMaxCountLength / 2),
-            ];
+        if ($this->lastInsertId - $this->lastChunkOffset >= $this->routeCountPerRegex) {
+            $this->newChunk();
         }
 
-        $this->addRegex($route->getRegex() . '/' . $this->convertNumberToRegex($index));
-        $this->routeMap[count($this->routeMap) - 1][self::KEY_REGEX] =
+        $this->addRegex($route->getRegex() . '/' . $this->convertNumberToRegex($this->lastInsertId));
+        $this->routeExpressions[count($this->routeExpressions) - 1][self::KEY_REGEX] =
             '~^' . $this->regex . '.*/$~sD' . ($this->utf8 ? 'u' : '');
         $middleware = &$route->getMiddlewareListReference();
         $this->routeData[] = [$route->getHandler(), &$middleware, $route->getVariableNames()];

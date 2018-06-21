@@ -53,7 +53,6 @@ class Route implements RouteInterface
      * Retrieves the server request handler.
      *
      * @return string
-     *
      * @see \Psr\Http\Server\RequestHandlerInterface
      */
     public function getHandler(): string
@@ -63,6 +62,7 @@ class Route implements RouteInterface
 
     /**
      * Retrieves the path pattern of the route.
+     *
      * @return string
      */
     public function getPathPattern(): string
@@ -72,6 +72,7 @@ class Route implements RouteInterface
 
     /**
      * Retrieves the host pattern of the route.
+     *
      * @return string
      */
     public function getHostPattern(): string
@@ -81,6 +82,7 @@ class Route implements RouteInterface
 
     /**
      * Retrieves the scheme pattern of the route.
+     *
      * @return string
      */
     public function getSchemePattern(): string

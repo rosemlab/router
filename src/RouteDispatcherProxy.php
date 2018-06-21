@@ -12,8 +12,11 @@ class RouteDispatcherProxy implements RouteDispatcherInterface
 
     private $placeholder;
 
-    public function __construct(RouteCollector $routeCollector, DispatcherInterface $variableDispatcher, &$placeholder)
-    {
+    public function __construct(
+        RouteCollector $routeCollector,
+        RegexBasedDispatcherInterface $variableDispatcher,
+        &$placeholder
+    ) {
         $this->routeCollector = $routeCollector;
         $this->variableDispatcher = $variableDispatcher;
         $this->placeholder = &$placeholder;
@@ -29,7 +32,11 @@ class RouteDispatcherProxy implements RouteDispatcherInterface
      */
     public function dispatch(string $method, string $uri): array
     {
-        $this->placeholder = new RouteDispatcher($this->routeCollector, $this->variableDispatcher);
+        $this->placeholder = new RouteDispatcher(
+            $this->routeCollector->getStaticRouteMap(),
+            $this->routeCollector->getVariableRouteMap(),
+            $this->variableDispatcher
+        );
 
         return $this->placeholder->dispatch($method, $uri);
     }

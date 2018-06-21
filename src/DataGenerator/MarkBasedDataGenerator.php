@@ -3,12 +3,11 @@
 namespace Rosem\Route\DataGenerator;
 
 use Rosem\Route\RouteInterface;
-
 use function count;
 
 class MarkBasedDataGenerator extends AbstractRegexBasedDataGenerator
 {
-    protected $offset = 0;
+    protected $lastChunkOffset = 0;
 
     /**
      * MarkBasedChunk constructor.
@@ -24,27 +23,32 @@ class MarkBasedDataGenerator extends AbstractRegexBasedDataGenerator
     ) {
         parent::__construct($routeCountPerRegex, $regexMaxLength);
 
-        $this->routeMap[] = '';
+        $this->routeExpressions[] = '';
+    }
+
+    public function newChunk(): void
+    {
+        $this->regexTree->clear();
+        $this->lastChunkOffset = $this->lastInsertId;
+        $this->routeExpressions[] = '';
     }
 
     /**
      * @param RouteInterface $route
      *
      * @return void
-     * @throws \InvalidArgumentException
+     * @throws \Rosem\Route\Exception\TooLongRouteException
      */
     public function addRoute(RouteInterface $route): void
     {
-        $index = count($this->routeData);
+        $this->lastInsertId = count($this->routeData);
 
-        if ($index - $this->offset >= $this->routeCountPerRegex) {
-            $this->regexTree->clear();
-            $this->offset = $index;
-            $this->routeMap[] = '';
+        if ($this->lastInsertId - $this->lastChunkOffset >= $this->routeCountPerRegex) {
+            $this->newChunk();
         }
 
-        $this->addRegex($route->getRegex() . '(*:' . $index . ')');
-        $this->routeMap[count($this->routeMap) - 1] = '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
+        $this->addRegex($route->getRegex() . '(*:' . $this->lastInsertId . ')');
+        $this->routeExpressions[count($this->routeExpressions) - 1] = '~^' . $this->regex . '$~sD' . ($this->utf8 ? 'u' : '');
         $middleware = &$route->getMiddlewareListReference();
         $this->routeData[] = [$route->getHandler(), &$middleware, $route->getVariableNames()];
     }

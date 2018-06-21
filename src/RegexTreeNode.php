@@ -39,7 +39,8 @@ class RegexTreeNode
         return (bool)count($this->nodes);
     }
 
-    public function getNodes(): array {
+    public function getNodes(): array
+    {
         return $this->nodes;
     }
 

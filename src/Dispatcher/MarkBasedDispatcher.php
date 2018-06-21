@@ -2,18 +2,18 @@
 
 namespace Rosem\Route\Dispatcher;
 
-class MarkBasedDispatcher extends AbstractDispatcher
+class MarkBasedDispatcher extends AbstractRegexBasedDispatcher
 {
     /**
-     * @param array  $routeMap
+     * @param array  $routeExpressions
      * @param array  $routeData
      * @param string $uri
      *
      * @return array
      */
-    public function dispatch(array &$routeMap, array &$routeData, string &$uri): array
+    public function dispatch(array &$routeExpressions, array &$routeData, string &$uri): array
     {
-        foreach ($routeMap as &$regex) {
+        foreach ($routeExpressions as &$regex) {
             if (preg_match($regex, $uri, $matches)) {
                 [$handler, $middleware, $variableNames] = $routeData[$matches['MARK']];
                 $variableData = [];

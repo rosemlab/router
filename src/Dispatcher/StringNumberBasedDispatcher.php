@@ -4,7 +4,7 @@ namespace Rosem\Route\Dispatcher;
 
 use Rosem\Route\DataGenerator\StringNumberBasedDataGenerator;
 
-class StringNumberBasedDispatcher extends AbstractDispatcher
+class StringNumberBasedDispatcher extends AbstractRegexBasedDispatcher
 {
     /**
      * @param array[] $routeData

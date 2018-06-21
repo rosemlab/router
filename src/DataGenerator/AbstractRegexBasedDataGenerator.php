@@ -3,31 +3,67 @@
 namespace Rosem\Route\DataGenerator;
 
 use InvalidArgumentException;
-use Rosem\Route\DataGeneratorInterface;
-use Rosem\Route\RegexTreeNode;
+use Rosem\Route\{
+    Exception\TooLongRouteException, RegexBasedDataGeneratorInterface, RegexTreeNode
+};
 use function strlen;
 
-abstract class AbstractRegexBasedDataGenerator implements DataGeneratorInterface
+abstract class AbstractRegexBasedDataGenerator implements RegexBasedDataGeneratorInterface
 {
-    protected const REGEX_ADDITIONAL_LENGTH = 8;
-
-    protected $routeMap = [];
-
-    protected $routeData = [];
-
-    protected $routeCountPerRegex;
-
-    protected $regex = '';
-
-    protected $regexMaxLength;
-
-    protected $regexLength = 0;
+    /**
+     * Collection of regexes.
+     *
+     * @var array
+     */
+    public $routeExpressions = [];
 
     /**
+     * Data of each route in the collection.
+     *
+     * @var array
+     */
+    public $routeData = [];
+
+    /**
+     * Count of routes per one regex.
+     *
+     * @var int
+     */
+    protected $routeCountPerRegex;
+
+    /**
+     * Last inserted route id.
+     *
+     * @var int
+     */
+    protected $lastInsertId = 0;
+
+    /**
+     * The final regex.
+     *
+     * @var string
+     */
+    protected $regex = '';
+
+    /**
+     * Max length of the final regex.
+     *
+     * @var int
+     */
+    protected $regexMaxLength;
+
+    /**
+     * Regex tree optimizer.
+     *
      * @var RegexTreeNode
      */
     protected $regexTree;
 
+    /**
+     * UTF-8 flag.
+     *
+     * @var bool
+     */
     protected $utf8 = false;
 
     /**
@@ -51,36 +87,31 @@ abstract class AbstractRegexBasedDataGenerator implements DataGeneratorInterface
         $this->regexTree = new RegexTreeNode();
     }
 
+    /**
+     * Use UTF-8 flag or not.
+     *
+     * @param bool $use
+     */
     public function useUtf8(bool $use = true): void
     {
         $this->utf8 = $use;
     }
 
-    public function getExpressions(): array
-    {
-        return $this->routeMap;
-    }
-
-    public function getData(): array
-    {
-        return $this->routeData;
-    }
-
     /**
+     * Add regex to the collection.
+     *
      * @param string $regex
      *
-     * @throws \InvalidArgumentException
+     * @throws TooLongRouteException
      */
     protected function addRegex(string $regex): void
     {
-        $regexLength = strlen($regex);
-        $regexFinalLength = $regexLength + static::REGEX_ADDITIONAL_LENGTH;
-
-        if ($this->regexLength + $regexFinalLength > $this->regexMaxLength) {
-            throw new InvalidArgumentException('Your route is too long');
-        }
-
         $this->regexTree->addRegex($regex);
         $this->regex = $this->regexTree->getRegex();
+
+        if (strlen($this->regex) > $this->regexMaxLength) {
+            // TODO: rollback
+            throw new TooLongRouteException('Your route is too long');
+        }
     }
 }

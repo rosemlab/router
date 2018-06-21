@@ -2,10 +2,10 @@
 
 namespace Rosem\Route\Dispatcher;
 
-use Rosem\Route\DataGenerator\GroupCountBasedDataGenerator;
+use Rosem\Route\DataGenerator\GroupCountBasedRegexGenerator;
 use function count;
 
-class GroupCountBasedDispatcher extends AbstractDispatcher
+class GroupCountBasedDispatcher extends AbstractRegexBasedDispatcher
 {
     /**
      * @param array  $routeData
@@ -17,11 +17,15 @@ class GroupCountBasedDispatcher extends AbstractDispatcher
     public function dispatch(array &$routeData, array &$routes, string &$uri): array
     {
         foreach ($routeData as &$data) {
-            if (!preg_match($data[GroupCountBasedDataGenerator::KEY_REGEX], $uri, $matches)) {
+            if (!preg_match($data[GroupCountBasedRegexGenerator::KEY_REGEX], $uri, $matches)) {
                 continue;
             }
 
-            [$handler, $middleware, $variableNames] = $routes[count($matches) + $data[GroupCountBasedDataGenerator::KEY_OFFSET]];
+            [
+                $handler,
+                $middleware,
+                $variableNames,
+            ] = $routes[count($matches) + $data[GroupCountBasedRegexGenerator::KEY_OFFSET]];
             $variableData = [];
 
             /** @var string[] $variableNames */

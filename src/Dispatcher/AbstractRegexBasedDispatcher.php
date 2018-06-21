@@ -3,9 +3,9 @@
 namespace Rosem\Route\Dispatcher;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Rosem\Route\DispatcherInterface;
+use Rosem\Route\RegexBasedDispatcherInterface;
 
-abstract class AbstractDispatcher implements DispatcherInterface
+abstract class AbstractRegexBasedDispatcher implements RegexBasedDispatcherInterface
 {
     protected const ROUTE_FOUND = StatusCodeInterface::STATUS_OK;
 
