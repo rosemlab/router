@@ -40,11 +40,7 @@ class Parser implements ParserInterface
             $variableNames[] = $matches[1] ?: $index;
             ++$index;
 
-            if ($matches[2]) {
-                return '(' . $matches[2] . ')';
-            }
-
-            return '(' . self::DEFAULT_DISPATCH_REGEX . ')';
+            return '(' . ($matches[2] ?: self::DEFAULT_DISPATCH_REGEX) . ')';
         }, $routePattern);
 
         return [
