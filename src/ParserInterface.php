@@ -2,7 +2,7 @@
 
 namespace Rosem\Route;
 
-interface RouteParserInterface
+interface ParserInterface
 {
     public function parse(string $routePattern): array;
 }

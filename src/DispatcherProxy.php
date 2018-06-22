@@ -4,21 +4,21 @@ namespace Rosem\Route;
 
 use Psrnext\Route\RouteDispatcherInterface;
 
-class RouteDispatcherProxy implements RouteDispatcherInterface
+class DispatcherProxy implements RouteDispatcherInterface
 {
-    private $routeCollector;
+    private $collector;
 
-    private $variableDispatcher;
+    private $regexBasedDispatcher;
 
     private $placeholder;
 
     public function __construct(
-        RouteCollector $routeCollector,
-        RegexBasedDispatcherInterface $variableDispatcher,
+        Collector $collector,
+        RegexBasedDispatcherInterface $regexBasedDispatcher,
         &$placeholder
     ) {
-        $this->routeCollector = $routeCollector;
-        $this->variableDispatcher = $variableDispatcher;
+        $this->collector = $collector;
+        $this->regexBasedDispatcher = $regexBasedDispatcher;
         $this->placeholder = &$placeholder;
     }
 
@@ -32,10 +32,10 @@ class RouteDispatcherProxy implements RouteDispatcherInterface
      */
     public function dispatch(string $method, string $uri): array
     {
-        $this->placeholder = new RouteDispatcher(
-            $this->routeCollector->getStaticRouteMap(),
-            $this->routeCollector->getVariableRouteMap(),
-            $this->variableDispatcher
+        $this->placeholder = new Dispatcher(
+            $this->collector->getStaticRouteMap(),
+            $this->collector->getVariableRouteMap(),
+            $this->regexBasedDispatcher
         );
 
         return $this->placeholder->dispatch($method, $uri);

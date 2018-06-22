@@ -2,14 +2,14 @@
 
 namespace Rosem\Route;
 
-class RouteCompiler implements RouteCompilerInterface
+class Compiler implements CompilerInterface
 {
     /**
-     * @var RouteParserInterface
+     * @var ParserInterface
      */
     protected $parser;
 
-    public function __construct(RouteParserInterface $parser)
+    public function __construct(ParserInterface $parser)
     {
         $this->parser = $parser;
     }

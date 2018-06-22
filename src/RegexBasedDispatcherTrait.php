@@ -5,7 +5,7 @@ namespace Rosem\Route;
 /**
  * Trait RouteDispatcherTrait.
  */
-trait RouteRegexBasedDispatcherTrait
+trait RegexBasedDispatcherTrait
 {
     /**
      * @var RegexBasedDispatcherInterface

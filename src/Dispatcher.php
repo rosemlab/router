@@ -4,10 +4,10 @@ namespace Rosem\Route;
 
 use Psrnext\Route\RouteDispatcherInterface;
 
-class RouteDispatcher implements RouteDispatcherInterface
+class Dispatcher implements RouteDispatcherInterface
 {
-    use RouteMapTrait;
-    use RouteRegexBasedDispatcherTrait;
+    use MapTrait;
+    use RegexBasedDispatcherTrait;
 
     /**
      * RouteDispatcher constructor.

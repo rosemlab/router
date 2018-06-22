@@ -2,7 +2,7 @@
 
 namespace Rosem\Route;
 
-interface RouteCompilerInterface
+interface CompilerInterface
 {
     public function compile(array $methods, string $routePattern, string $handler): RouteInterface;
 }

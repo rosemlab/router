@@ -2,7 +2,7 @@
 
 namespace Rosem\Route;
 
-class RouteParser implements RouteParserInterface
+class Parser implements ParserInterface
 {
     protected const VARIABLE_TOKENS = ['{', '}'];
 
@@ -32,7 +32,7 @@ class RouteParser implements RouteParserInterface
      *
      * @return array[]
      */
-    public function parse(string $routePattern): array // TODO: parse user groups
+    public function parse(string $routePattern): array // TODO: parse user groups and optional end part
     {
         $variableNames = [];
         $index = 0;

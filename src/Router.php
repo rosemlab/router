@@ -6,9 +6,9 @@ use Psrnext\Route\RouteDispatcherInterface;
 use Rosem\Route\DataGenerator\MarkBasedDataGenerator;
 use Rosem\Route\Dispatcher\MarkBasedDispatcher;
 
-class Router extends RouteCollector implements RouteDispatcherInterface
+class Router extends Collector implements RouteDispatcherInterface
 {
-    use RouteRegexBasedDispatcherTrait;
+    use RegexBasedDispatcherTrait;
 
     /**
      * Router constructor.
@@ -19,7 +19,7 @@ class Router extends RouteCollector implements RouteDispatcherInterface
      */
     public function __construct(int $routeCountPerRegex = PHP_INT_MAX)
     {
-        parent::__construct(new RouteCompiler(new RouteParser()), new MarkBasedDataGenerator($routeCountPerRegex));
+        parent::__construct(new Compiler(new Parser()), new MarkBasedDataGenerator($routeCountPerRegex));
 
         $this->regexBasedDispatcher = new MarkBasedDispatcher();
     }

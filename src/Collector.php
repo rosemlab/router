@@ -7,12 +7,12 @@ use Psrnext\Route\{
 };
 use function count;
 
-class RouteCollector extends AbstractRouteCollector
+class Collector extends AbstractRouteCollector
 {
-    use RouteMapTrait;
+    use MapTrait;
 
     /**
-     * @var RouteCompiler
+     * @var Compiler
      */
     protected $compiler;
 
@@ -26,7 +26,7 @@ class RouteCollector extends AbstractRouteCollector
      */
     protected $prefix = '';
 
-    public function __construct(RouteCompilerInterface $compiler, RegexBasedDataGeneratorInterface $dataGenerator)
+    public function __construct(CompilerInterface $compiler, RegexBasedDataGeneratorInterface $dataGenerator)
     {
         $this->compiler = $compiler;
         $this->dataGenerator = $dataGenerator;
